@@ -1,1 +1,13 @@
-<p>login works!</p>
+<form [formGroup]="loginForm" onsubmit="login()">
+    <section>
+        <label for="email">email</label>
+        <input type="text" name="email" formControlName="email">
+    </section>
+    <section>
+        <label for="password">password</label>
+        <input type="password" name="password" formControlName="password">
+    </section>
+    <section>
+        <button type="submit">Entrar</button>
+    </section>
+</form>

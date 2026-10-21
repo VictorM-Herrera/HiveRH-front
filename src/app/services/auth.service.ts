@@ -1,0 +1,38 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { environment } from '../../environments/environment';
+import { CsrfService } from './csrf.service';
+import { map, Observable, of, switchMap, tap } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+
+export interface loginDTO{
+  email:string,
+  password:string
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  private readonly _csrf = inject(CsrfService);
+  private readonly url = environment.baseUrl;
+  private readonly http = inject(HttpClient);
+  private readonly _accessToken = signal<string|null>(null);
+
+  readonly accessToken = this._accessToken.asReadonly();
+
+  private readonly headers = {
+      withCredentials:true,
+      headers:{
+        'X-XSRF-TOKEN': this._csrf.token()!
+      }
+  }
+
+
+  login(data:loginDTO):Observable<boolean>{
+    return this.http.post<{accessToken: string}>(this.url+"/api/auth/login", data, this.headers).pipe(
+      tap(token => this._accessToken.set(token.accessToken || null)),
+      map(data => !data.accessToken)
+    );
+  }
+}
