@@ -33,7 +33,7 @@ export class Login {
     const password = this.loginForm.getRawValue().password;
 
     const dto: loginDTO = {
-      email: email,
+      identifier: email,
       password: password
     }
 

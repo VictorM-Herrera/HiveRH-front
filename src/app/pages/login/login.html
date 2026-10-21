@@ -1,4 +1,4 @@
-<form [formGroup]="loginForm" onsubmit="login()">
+<form [formGroup]="loginForm" (ngSubmit)="login()">
     <section>
         <label for="email">email</label>
         <input type="text" name="email" formControlName="email">
