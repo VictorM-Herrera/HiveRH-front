@@ -33,15 +33,19 @@ export class Login {
     const password = this.loginForm.getRawValue().password;
 
     const dto: loginDTO = {
-      email: email,
+      identifier: email,
       password: password
     }
 
     this.authService.login(dto).subscribe({
       next:(data)=>{
         if (data){
-          this._router.navigate(['/home'])
+          console.log('holas');
+          
+          this._router.navigate(['home'])
         } else{
+          console.log('hola2');
+          
           this.error.set("credenciales invalidas")
         }
       },

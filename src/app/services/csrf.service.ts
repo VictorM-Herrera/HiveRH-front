@@ -16,6 +16,9 @@ export class CsrfService {
     return this._http.get<{token:string}>(`${this.baseUrl}/api/auth/csrf`,{
       withCredentials:true
     }).pipe(
-      map(response => response.token),tap(token => this._token.set(token)));
+      map(response => response.token),tap(token => {
+        console.log(token);
+        
+        this._token.set(token)}));
   }
 }

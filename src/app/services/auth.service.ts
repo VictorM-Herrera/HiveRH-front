@@ -6,7 +6,7 @@ import { map, Observable, of, switchMap, tap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 
 export interface loginDTO{
-  email:string,
+  identifier:string,
   password:string
 }
 
@@ -32,7 +32,7 @@ export class AuthService {
   login(data:loginDTO):Observable<boolean>{
     return this.http.post<{accessToken: string}>(this.url+"/api/auth/login", data, this.headers).pipe(
       tap(token => this._accessToken.set(token.accessToken || null)),
-      map(data => !data.accessToken)
+      map(data => !!data.accessToken)
     );
   }
 }
