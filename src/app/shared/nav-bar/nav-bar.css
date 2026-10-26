@@ -1,0 +1,75 @@
+nav {
+    position: absolute;
+    z-index: 1000;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    width: 60px;
+    min-width: 50px;
+    min-height: 100vh;
+
+    color: #F6F7EF;
+    background-color: #273B30;
+
+    transition: width 0.3s ease-in-out;
+}
+
+nav:hover {
+    width: 236px;
+}
+
+nav:hover p {
+    color: #ACB9AE;
+}
+
+.main-group {
+    border-bottom: 1px solid white;
+}
+
+.main-group p {
+    margin: 16px 0 26px 5px;
+
+    color: transparent;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 16px;
+}
+
+.group-logo {
+    display: flex;
+    align-items: center;
+    padding-right: 15px;
+    color: #F6F7EF;
+}
+
+.group-logo label,
+.group-icons label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 32px;
+}
+
+.group-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 5px;
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    margin-left: 5px;
+}
+
+.user-icon {
+    margin-bottom: 5px;
+}

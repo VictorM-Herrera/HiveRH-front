@@ -10,8 +10,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(),
-    provideAppInitializer(()=>{
-      return inject(CsrfService).loadToken();
-    })
+    // provideAppInitializer(()=>{
+    //   return inject(CsrfService).loadToken();
+    // })
   ]
 };
