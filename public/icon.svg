@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>HiveRH</title>
+
+  <path
+    fill="#F4B73F"
+    d="M18 4h28l16 28-16 28H18L2 32Z"
+  />
+
+  <path
+    fill="#252D27"
+    d="M22 20h5v9h10v-9h5v24h-5V34H27v10h-5Z"
+  />
+</svg>

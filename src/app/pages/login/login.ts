@@ -40,12 +40,8 @@ export class Login {
     this.authService.login(dto).subscribe({
       next:(data)=>{
         if (data){
-          console.log('holas');
-          
           this._router.navigate(['home'])
         } else{
-          console.log('hola2');
-          
           this.error.set("credenciales invalidas")
         }
       },
