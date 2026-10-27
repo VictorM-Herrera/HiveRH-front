@@ -1,43 +1,45 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormControl, FormControlName, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormControlName, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { email } from '@angular/forms/signals';
 import { AuthService, loginDTO } from '../../services/auth.service';
-import { map, switchMap } from 'rxjs';
-import { Router } from '@angular/router';
+import { finalize, map, switchMap } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
+import { LoadingCircleComponent } from '../../components/loading-circle/loading-circle';
+import { ToastComponent } from '../../components/toast/toast';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink, LoadingCircleComponent, ToastComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
   private readonly authService = inject(AuthService);
   private readonly _router = inject(Router);
+  private readonly _fb = inject(NonNullableFormBuilder);
   readonly error = signal<string | null>(null);
+  readonly isLoading = signal<boolean>(false);
   
-  readonly loginForm = new FormGroup({
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: Validators.email
-    }),
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: Validators.minLength(4)
-    })
+
+  readonly loginForm = this._fb.group({
+    identifier: ['',[Validators.required]],
+    password: ['',[Validators.required]]
   })
 
 
   login(){
-    const email = this.loginForm.getRawValue().email;
-    const password = this.loginForm.getRawValue().password;
+    const {identifier, password} = this.loginForm.getRawValue();
+    this.error.set(null);
+    this.isLoading.set(true);
 
     const dto: loginDTO = {
-      identifier: email,
+      identifier: identifier,
       password: password
     }
 
-    this.authService.login(dto).subscribe({
+    this.authService.login(dto)
+    .pipe(finalize(()=>this.isLoading.set(false)))
+    .subscribe({
       next:(data)=>{
         if (data){
           this._router.navigate(['home'])
@@ -45,7 +47,7 @@ export class Login {
           this.error.set("credenciales invalidas")
         }
       },
-      error: err => console.error(err)
+      error: err => this.error.set('No pudimos iniciar sesión. Intentá nuevamente.')
     });
   }
 }
