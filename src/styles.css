@@ -1,5 +1,47 @@
+@import "@fontsource/manrope/400.css";
+@import "@fontsource/manrope/500.css";
+@import "@fontsource/manrope/600.css";
+@import "@fontsource/manrope/700.css";
+@import "@fontsource/manrope/800.css";
+
+
 *{
     margin: 0;
     padding: 0;
+    font-family: "Manrope", sans-serif;
+    box-sizing: border-box;
+}
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+:root {
+  --hive-honey: #f4b73f;
+  --hive-honey-hover: #e4a52b;
+  --hive-honey-disabled: #e1c489;
+  --hive-canvas: #f8f7f3;
+  --hive-surface: #ffffff;
+  --hive-ink: #252d27;
+  --hive-muted: #6b736c;
+  --hive-line: #e3e6df;
+  --hive-forest: #273b30;
+  --hive-on-dark: #f6f7ef;
+  --hive-dark-muted: #acb9ae;
+  --hive-sage: #eaf2e9;
+  --hive-green: #356e47;
+  color: var(--hive-ink);
+  font-family: "Manrope", sans-serif;
+  font-synthesis: none;
 }
 
+body{
+    min-width: 320px;
+    background: var(--hive-canvas);
+}
+
+.main-container{
+    min-width: 100vw;
+    min-height: 100vh;
+    position: relative;
+    font-family: inherit;
+}

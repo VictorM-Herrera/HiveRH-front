@@ -1,13 +1,68 @@
-<!-- <form [formGroup]="loginForm" (ngSubmit)="login()">
-    <section>
-        <label for="email">email</label>
-        <input type="text" name="email" formControlName="email">
-    </section>
-    <section>
-        <label for="password">password</label>
-        <input type="password" name="password" formControlName="password">
-    </section>
-    <section>
-        <button type="submit">Entrar</button>
-    </section>
-</form> -->
+<section class="login-page-container">
+  <div class="brand-panel">
+        <a routerLink="/" class="brand">
+          <span class="brand-panel-title">
+            <img src="icon.svg" alt="HiveRH logo" />
+            <span class="brand-title">HiveRH</span>
+          </span>
+        </a>
+
+    <div class="brand-panel-text">
+      <span class="brand-panel-chip">TU EQUIPO. TU COLMENA</span>
+      <h1>Un equipo.<br />Muchas formas<br />de crecer.</h1>
+      <p>Personas, tiempos y oportunidades.<br />Todo conectado en un mismo lugar.</p>
+    </div>
+    <div class="brand-honeycomb">
+      <span class="honeycomb-container people">
+        <img class="honeycomb-shape" src="icons/honeycombs/hex-honey.svg" alt="" />
+        <img class="honeycomb-icon" src="icons/icon-users.svg" alt="icono-usuario" />
+      </span>
+      <span class="honeycomb-container sun">
+        <img class="honeycomb-shape" src="icons/honeycombs/hex-cream.svg" alt="" />
+        <img class="honeycomb-icon" src="icons/icon-sun.svg" alt="icono-sol" />
+      </span>
+      <span class="honeycomb-container calendar">
+        <img class="honeycomb-shape" src="icons/honeycombs/hex-sage.svg" alt="" />
+        <img class="honeycomb-icon" src="icons/icon-calendar.svg" alt="icono-sol" />
+      </span>
+      <span class="honeycomb-container outline">
+        <img class="honeycomb-shape" src="icons/honeycombs/hex-outline.svg" alt="" />
+      </span>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="login-form">
+        <header class="login-form-header">
+            <p class="eyebrow">BIENVENIDO A HIVERH</p>
+            <h2 id="login-title">Tu colmena te espera.</h2>
+            <p>Ingresa con tu cuenta para continuar.</p>
+        </header>
+        <div class="form-field">
+            <label for="identifier">Email/ Nombre de usuario</label>
+            <input type="text" name="identifier" formControlName="identifier" placeholder="ej: Victor">
+        </div>
+        <div class="form-field">
+            <label for="password">password</label>
+            <input type="password" name="password" formControlName="password" placeholder="ej: Tu contraseña">
+        </div>
+         <p class="form-help">¿Necesitás ayuda? Contactá a tu administrador.</p>
+         <button [disabled]="loginForm.invalid || isLoading()" type="submit" class="form-submit">
+            Ingresar a mi espacio <span aria-hidden="true">→</span>
+         </button>
+
+         <aside class="security-note">
+            <img src="icons/icon-shield.svg" alt="icono escudo">
+            <p>Un espacio seguro para vos <br>y las personas de tu equipo.</p>
+         </aside>
+    </form>
+    @if(isLoading()){
+        <app-loading-circle />
+    }
+    @if (error(); as errorMessage) {
+        <app-toast
+            [message]="errorMessage"
+            (dismissed)="error.set(null)"
+        />
+    }
+  </div>
+</section>
