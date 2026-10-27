@@ -1,0 +1,22 @@
+<aside
+  [class]="'toast toast--' + type()"
+  [attr.role]="type() === 'error' ? 'alert' : 'status'"
+  aria-live="assertive"
+>
+  <span class="toast-icon" aria-hidden="true">
+    @switch (type()) {
+      @case ('success') { ✓ }
+      @case ('info') { i }
+      @default { ! }
+    }
+  </span>
+
+  <div class="toast-content">
+    <strong>{{ title() }}</strong>
+    <p>{{ message() }}</p>
+  </div>
+
+  <button type="button" class="toast-close" aria-label="Cerrar notificación" (click)="dismissed.emit()">
+    ×
+  </button>
+</aside>
