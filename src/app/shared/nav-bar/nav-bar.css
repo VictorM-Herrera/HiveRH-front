@@ -86,6 +86,7 @@
 .section-label {
   height: 20px;
   margin: 0 12px 8px;
+  /* padding-top: 5px; */
   color: var(--hive-dark-muted);
   font-size: 10px;
   font-weight: 700;
@@ -100,6 +101,7 @@
   flex-direction: column;
   gap: 6px;
   list-style: none;
+  margin-bottom: 15px;
 }
 
 .nav-item {

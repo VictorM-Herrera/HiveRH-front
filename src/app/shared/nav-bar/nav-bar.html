@@ -8,35 +8,112 @@
   </a>
 
   <div class="navigation">
-    <p class="section-label">MI ESPACIO</p>
     <ul class="nav-list">
-      @for (item of navigationItems; track item.id) {
-        <li>
-          @if (item.route) {
-            <a
-              class="nav-item"
-              [routerLink]="item.route"
-              routerLinkActive="is-active"
-              [routerLinkActiveOptions]="{ exact: true }"
-              [attr.title]="item.label"
-            >
-              <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
-              <span class="nav-label">{{ item.label }}</span>
-            </a>
-          } @else {
-            <button
-              type="button"
-              class="nav-item"
-              [attr.title]="item.label"
-              (click)="itemSelected.emit(item.id)"
-            >
-              <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
-              <span class="nav-label">{{ item.label }}</span>
-            </button>
-          }
-        </li>
-      }
+      <a
+        class="nav-item"
+        routerLink="/home"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="Home"
+      >
+        <img class="nav-icon" [src]="'icons/navigation/home.svg'" alt="icono casa" />
+        <span class="nav-label">Inicio</span>
+      </a>
     </ul>
+    @if (userRole() === 'Staff' || userRole() === 'Administrador') {
+      <p class="section-label">GESTION</p>
+      <ul class="nav-list">
+        @for (item of navigationItemsStaff; track item.id) {
+          <li>
+            @if (item.route) {
+              <a
+                class="nav-item"
+                [routerLink]="item.route"
+                routerLinkActive="is-active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                [attr.title]="item.label"
+              >
+                <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+                <span class="nav-label">{{ item.label }}</span>
+              </a>
+            } @else {
+              <button
+                type="button"
+                class="nav-item"
+                [attr.title]="item.label"
+                (click)="itemSelected.emit(item.id)"
+              >
+                <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+                <span class="nav-label">{{ item.label }}</span>
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+    @if (userRole() === 'Administrador') {
+      <p class="section-label">ORGANIZACION</p>
+      <ul class="nav-list">
+        @for (item of navigationItemsAdmin; track item.id) {
+          <li>
+            @if (item.route) {
+              <a
+                class="nav-item"
+                [routerLink]="item.route"
+                routerLinkActive="is-active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                [attr.title]="item.label"
+              >
+                <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+                <span class="nav-label">{{ item.label }}</span>
+              </a>
+            } @else {
+              <button
+                type="button"
+                class="nav-item"
+                [attr.title]="item.label"
+                (click)="itemSelected.emit(item.id)"
+              >
+                <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+                <span class="nav-label">{{ item.label }}</span>
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+
+    @if (userRole() != 'Administrador') {
+      <p class="section-label">MI ESPACIO</p>
+      <ul class="nav-list">
+        @for (item of navigationItems; track item.id) {
+          <li>
+            @if (item.route) {
+              <a
+                class="nav-item"
+                [routerLink]="item.route"
+                routerLinkActive="is-active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                [attr.title]="item.label"
+              >
+                <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+                <span class="nav-label">{{ item.label }}</span>
+              </a>
+            } @else {
+              <button
+                type="button"
+                class="nav-item"
+                [attr.title]="item.label"
+                (click)="itemSelected.emit(item.id)"
+              >
+                <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+                <span class="nav-label">{{ item.label }}</span>
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
   </div>
 
   <div class="user-menu" #userMenu>
@@ -51,7 +128,12 @@
         <strong>{{ userName() }}</strong>
         <small>{{ userRole() }}</small>
       </span>
-      <img class="user-chevron" [class.user-chevron-open]="isUserMenuOpen()" src="icons/icon-chevron-right.svg" alt="" />
+      <img
+        class="user-chevron"
+        [class.user-chevron-open]="isUserMenuOpen()"
+        src="icons/icon-chevron-right.svg"
+        alt=""
+      />
     </button>
 
     @if (isUserMenuOpen()) {
@@ -63,7 +145,11 @@
           </button>
         }
 
-        <button type="button" class="user-menu-action user-menu-action-logout" (click)="selectLogout()">
+        <button
+          type="button"
+          class="user-menu-action user-menu-action-logout"
+          (click)="selectLogout()"
+        >
           <img src="icons/navigation/logout.svg" alt="" />
           <span>Cerrar sesión</span>
         </button>

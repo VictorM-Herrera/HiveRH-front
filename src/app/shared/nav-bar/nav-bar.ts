@@ -1,12 +1,12 @@
 import { Component, ElementRef, input, output, signal, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-type NavigationIcon = 'home' | 'people' | 'calendar' | 'requests';
+
 
 interface NavigationItem {
   id: string;
   label: string;
-  icon: NavigationIcon;
+  icon: string;
   route?: string;
 }
 
@@ -31,11 +31,22 @@ export class NavBar {
   private readonly userMenu = viewChild<ElementRef<HTMLElement>>('userMenu');
 
   readonly navigationItems: readonly NavigationItem[] = [
-    { id: 'home', label: 'Inicio', icon: 'home', route: '/home' },
-    { id: 'people', label: 'Personas', icon: 'people' },
-    { id: 'calendar', label: 'Calendario', icon: 'calendar' },
-    { id: 'requests', label: 'Solicitudes', icon: 'requests' },
+    { id: 'sun', label: 'Mis vacaciones', icon: 'sun'},
+    { id: 'file', label: 'Mis licencias', icon: 'file' },
+    { id: 'clock', label: 'Mi horario', icon: 'clock' },
   ];
+  readonly navigationItemsStaff: readonly NavigationItem[] = [
+    { id: 'people', label: 'Empleados', icon: 'people'},
+    { id: 'calendar', label: 'Vacaciones', icon: 'calendar' },
+    { id: 'file', label: 'Licencias', icon: 'file' },
+    { id: 'clock', label: 'Horarios', icon: 'clock' },
+  ];
+  readonly navigationItemsAdmin: readonly NavigationItem[] = [
+    { id: 'building', label: 'Sucursales', icon: 'building' },
+    { id: 'grid', label: 'Departamentos', icon: 'grid' },
+    { id: 'briefcase', label: 'Puestos', icon: 'briefcase' }
+  ];
+
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update((isOpen) => !isOpen);
