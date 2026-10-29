@@ -1,22 +1,73 @@
-<nav>
-    <div>
-        <div class="main-group">
-            <div class="group-logo">
-                <label for="">
-                <img class="icon" src="icon.svg" alt="HiveRH_logo" (click)="home()">
-                HiveRH
-                </label>
-            </div>
-            <p>personas en equipo</p>
-        </div>
-        <div class="group-icons">
-            <label for="">
-            <img class="icon" src="icon.svg" alt="HiveRH_logo" (click)="home()">
-            HiveRH
-            </label>
-        </div>
-    </div>
-    <div class="user-icon">
-        <img class="icon" src="default-avatar.png" alt="">
-    </div>
+<nav class="sidebar" [class.sidebar--menu-open]="isUserMenuOpen()">
+  <a class="brand" routerLink="/home">
+    <span class="brand-icon"><img src="icon.svg" alt="" /></span>
+    <span class="brand-copy">
+      <strong>HiveRH</strong>
+      <small>Personas en equipo</small>
+    </span>
+  </a>
+
+  <div class="navigation">
+    <p class="section-label">MI ESPACIO</p>
+    <ul class="nav-list">
+      @for (item of navigationItems; track item.id) {
+        <li>
+          @if (item.route) {
+            <a
+              class="nav-item"
+              [routerLink]="item.route"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              [attr.title]="item.label"
+            >
+              <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+              <span class="nav-label">{{ item.label }}</span>
+            </a>
+          } @else {
+            <button
+              type="button"
+              class="nav-item"
+              [attr.title]="item.label"
+              (click)="itemSelected.emit(item.id)"
+            >
+              <img class="nav-icon" [src]="'icons/navigation/' + item.icon + '.svg'" alt="" />
+              <span class="nav-label">{{ item.label }}</span>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="user-menu" #userMenu>
+    <button
+      type="button"
+      class="user-card"
+      [class.user-card-open]="isUserMenuOpen()"
+      (click)="toggleUserMenu()"
+    >
+      <img class="user-avatar" src="default-avatar.png" alt="" />
+      <span class="user-copy">
+        <strong>{{ userName() }}</strong>
+        <small>{{ userRole() }}</small>
+      </span>
+      <img class="user-chevron" [class.user-chevron-open]="isUserMenuOpen()" src="icons/icon-chevron-right.svg" alt="" />
+    </button>
+
+    @if (isUserMenuOpen()) {
+      <div class="user-menu-panel">
+        @if (userRole() != 'Administrador') {
+          <button type="button" class="user-menu-action" (click)="selectProfile()">
+            <img src="icons/navigation/profile.svg" alt="" />
+            <span>Ver perfil</span>
+          </button>
+        }
+
+        <button type="button" class="user-menu-action user-menu-action-logout" (click)="selectLogout()">
+          <img src="icons/navigation/logout.svg" alt="" />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    }
+  </div>
 </nav>

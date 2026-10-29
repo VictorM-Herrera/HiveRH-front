@@ -229,6 +229,13 @@
 .form-submit:hover {
   background: var(--hive-honey-hover);
 }
+.form-submit img {
+  width: 18px;
+  height: 18px;
+}
+.form-submit:disabled img {
+  opacity: 0.55;
+}
 .form-submit:active {
   transform: translateY(1px);
 }

@@ -1,11 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { FormControl, FormControlName, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { email } from '@angular/forms/signals';
-import { AuthService, loginDTO } from '../../services/auth.service';
-import { finalize, map, switchMap } from 'rxjs';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { defer, finalize } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
-import { LoadingCircleComponent } from '../../components/loading-circle/loading-circle';
 import { ToastComponent } from '../../components/toast/toast';
+import { LoadingCircleComponent } from '../../components/loading-circle/loading-circle';
 
 @Component({
   selector: 'app-login',
@@ -19,35 +19,39 @@ export class Login {
   private readonly _fb = inject(NonNullableFormBuilder);
   readonly error = signal<string | null>(null);
   readonly isLoading = signal<boolean>(false);
-  
 
   readonly loginForm = this._fb.group({
-    identifier: ['',[Validators.required]],
-    password: ['',[Validators.required]]
-  })
+    identifier: ['', [Validators.required]],
+    password: ['', [Validators.required]],
+  });
 
+  login() {
+    if (this.loginForm.invalid || this.isLoading()) {
+      return;
+    }
 
-  login(){
-    const {identifier, password} = this.loginForm.getRawValue();
     this.error.set(null);
     this.isLoading.set(true);
 
-    const dto: loginDTO = {
-      identifier: identifier,
-      password: password
-    }
+    
+    defer(() => this.authService.login(this.loginForm.getRawValue()))
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (response) => {
+          if (response.mustChangePassword) {
+            this._router.navigate(['/change-password']);
+            return;
+          }
 
-    this.authService.login(dto)
-    .pipe(finalize(()=>this.isLoading.set(false)))
-    .subscribe({
-      next:(data)=>{
-        if (data){
-          this._router.navigate(['home'])
-        } else{
-          this.error.set("credenciales invalidas")
-        }
-      },
-      error: err => this.error.set('No pudimos iniciar sesión. Intentá nuevamente.')
-    });
+          this._router.navigate(['/home']);
+        },
+        error: (error: unknown) => {
+          this.error.set(
+            error instanceof HttpErrorResponse && error.status === 401
+              ? 'Credenciales inválidas.'
+              : 'No pudimos iniciar sesión. Intentá nuevamente.',
+          );
+        },
+      });
   }
 }

@@ -17,8 +17,6 @@ export class CsrfService {
       withCredentials:true
     }).pipe(
       map(response => response.token),tap(token => {
-        console.log(token);
-        
         this._token.set(token)}));
   }
 }

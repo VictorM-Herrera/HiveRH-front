@@ -46,9 +46,12 @@
   place-items: center;
   border-radius: 50%;
   background: var(--toast-icon-background);
-  color: var(--toast-accent);
-  font-size: 14px;
-  font-weight: 800;
+}
+
+.toast-icon img,
+.toast-close img {
+  width: 16px;
+  height: 16px;
 }
 
 .toast-content {
@@ -79,8 +82,6 @@
   background: transparent;
   color: var(--hive-muted);
   font: inherit;
-  font-size: 20px;
-  line-height: 1;
   cursor: pointer;
 }
 

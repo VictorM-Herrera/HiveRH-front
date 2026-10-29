@@ -1,6 +1,9 @@
 <main class="main-container">
-    <nav-bar/>
+  @if (showNavigation()) {
+    <nav-bar [userName]="userName()" [userRole]="userRole()" (logoutSelected)="logout()" />
+  }
+
+  <section class="app-content" [class.with-nav]="showNavigation()">
     <router-outlet />
+  </section>
 </main>
-
-
