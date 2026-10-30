@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -8,16 +8,18 @@ import {
   filter,
   finalize,
   map,
+  merge,
   startWith,
   switchMap,
 } from 'rxjs';
 import { NavBar } from './shared/nav-bar/nav-bar';
+import { PageHeader } from './shared/page-header/page-header';
 import { AuthService } from './services/auth.service';
 import { EmployeeService } from './services/employee.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavBar],
+  imports: [RouterOutlet, NavBar, PageHeader],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -44,6 +46,8 @@ export class App {
     return 'Empleado';
   });
 
+  readonly profilePicture = this._employeeService.profilePicture;
+
   readonly showNavigation = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -59,19 +63,38 @@ export class App {
         map((session) => session?.identifier ?? null),
         distinctUntilChanged(),
         switchMap((identifier) => {
+          this._authService.clearAccount();
           this._employeeService.clearCurrentEmployee();
           if (identifier === null) return EMPTY;
 
-          return this._employeeService.loadCurrentEmployee().pipe(
+          const account$ = this._authService.loadEmail().pipe(
             catchError((err) => {
-              console.log('No se pudo cargar el empleado.', err);
+              console.log('No se pudo cargar el email de la cuenta.', err);
               return EMPTY;
             }),
           );
+
+          const employee$ = this._employeeService.loadCurrentEmployee().pipe(
+            switchMap((employee) => {
+              if (!employee) return EMPTY;
+
+              return this._employeeService.loadProfilePicture(employee.dni);
+            }),
+            catchError((err) => {
+              console.log('No se pudo completar la carga del perfil', err);
+              return EMPTY;
+            }),
+          );
+
+          return merge(account$, employee$);
         }),
         takeUntilDestroyed(),
       )
       .subscribe();
+  }
+
+  openAccount(): void {
+    this.router.navigate(['/my-account']);
   }
 
   logout(): void {

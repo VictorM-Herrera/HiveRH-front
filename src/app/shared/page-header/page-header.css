@@ -1,0 +1,73 @@
+:host {
+  display: block;
+}
+
+.page-header {
+  display: flex;
+  width: 95%;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  border-bottom: 1px solid var(--hive-line);
+  background: var(--hive-surface);
+  padding: 18px clamp(20px, 3vw, 40px);
+}
+
+.breadcrumb,
+.header-details {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.breadcrumb a {
+  color: var(--hive-muted);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--hive-green);
+}
+
+.breadcrumb-separator {
+  color: var(--hive-muted);
+}
+
+.current-page {
+  font-weight: 600;
+}
+
+.header-details {
+  gap: 18px;
+}
+
+.current-date {
+  color: var(--hive-muted);
+}
+
+.role-badge {
+  border-radius: 999px;
+  background: var(--hive-sage);
+  padding: 5px 12px;
+  color: var(--hive-green);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+
+@media (max-width: 640px) {
+  .header-details {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+}
