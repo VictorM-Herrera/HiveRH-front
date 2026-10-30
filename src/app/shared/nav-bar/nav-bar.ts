@@ -23,6 +23,7 @@ interface NavigationItem {
 export class NavBar {
   readonly userName = input('Mi cuenta');
   readonly userRole = input('Usuario');
+  readonly userPhoto = input<string | null>(null);
   readonly itemSelected = output<string>();
   readonly profileSelected = output<void>();
   readonly logoutSelected = output<void>();
@@ -34,12 +35,15 @@ export class NavBar {
     { id: 'sun', label: 'Mis vacaciones', icon: 'sun'},
     { id: 'file', label: 'Mis licencias', icon: 'file' },
     { id: 'clock', label: 'Mi horario', icon: 'clock' },
+    { id: 'profile', label: 'Mi Perfil', icon: 'profile-white' },
   ];
   readonly navigationItemsStaff: readonly NavigationItem[] = [
     { id: 'people', label: 'Empleados', icon: 'people'},
     { id: 'calendar', label: 'Vacaciones', icon: 'calendar' },
     { id: 'file', label: 'Licencias', icon: 'file' },
     { id: 'clock', label: 'Horarios', icon: 'clock' },
+    
+
   ];
   readonly navigationItemsAdmin: readonly NavigationItem[] = [
     { id: 'building', label: 'Sucursales', icon: 'building' },

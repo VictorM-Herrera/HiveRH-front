@@ -22,3 +22,8 @@ export interface AuthSession {
   roles: Role[];
   mustChangePassword: boolean;
 }
+export interface Account {
+  email: string;
+  user: string;
+  rol: 'ADMIN' | 'STAFF' | 'EMPLOYEE';
+}

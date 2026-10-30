@@ -123,7 +123,7 @@
       [class.user-card-open]="isUserMenuOpen()"
       (click)="toggleUserMenu()"
     >
-      <img class="user-avatar" src="default-avatar.png" alt="" />
+      <img class="user-avatar" [src]="userPhoto() ?? 'default-avatar.png'" alt="" />
       <span class="user-copy">
         <strong>{{ userName() }}</strong>
         <small>{{ userRole() }}</small>
@@ -138,12 +138,10 @@
 
     @if (isUserMenuOpen()) {
       <div class="user-menu-panel">
-        @if (userRole() != 'Administrador') {
-          <button type="button" class="user-menu-action" (click)="selectProfile()">
-            <img src="icons/navigation/profile.svg" alt="" />
-            <span>Ver perfil</span>
-          </button>
-        }
+        <button type="button" class="user-menu-action" (click)="selectProfile()">
+          <img src="icons/navigation/profile.svg" alt="" />
+          <span>Ver cuenta</span>
+        </button>
 
         <button
           type="button"

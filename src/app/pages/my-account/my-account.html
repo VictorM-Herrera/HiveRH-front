@@ -1,0 +1,102 @@
+<section class="account-page">
+  <header class="page-heading">
+    <p class="eyebrow">MI ESPACIO</p>
+    <h1>Mi cuenta</h1>
+    <p>Revisá tus datos de acceso y actualizalos cuando lo necesites.</p>
+  </header>
+
+  <div class="account-grid">
+    <section class="account-card">
+      <header class="card-heading">
+        <span class="card-icon">
+          <img src="icons/navigation/profile.svg" alt="" />
+        </span>
+        <div>
+          <h2>Datos actuales</h2>
+          <p>Información de tu cuenta.</p>
+        </div>
+        <span class="readonly-badge">Solo lectura</span>
+      </header>
+
+      <div class="account-fields">
+        <div class="form-field">
+          <label for="current-email">Email</label>
+          <input
+            id="current-email"
+            type="text"
+            [value]="currentEmail()"
+            placeholder="No disponible"
+            readonly
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="current-password">Contraseña</label>
+          <input id="current-password" type="password" value="********" readonly />
+        </div>
+      </div>
+
+      <p class="account-note">
+        <img src="icons/icon-shield.svg" alt="" />
+        Tu contraseña actual se muestra oculta.
+      </p>
+    </section>
+
+    <form class="account-card" [formGroup]="accountForm" (ngSubmit)="submitChanges()">
+      <header class="card-heading">
+        <span class="card-icon">
+          <img src="icons/icon-shield.svg" alt="" />
+        </span>
+        <div>
+          <h2>Actualizar datos</h2>
+          <p>Completá solo lo que quieras cambiar.</p>
+        </div>
+      </header>
+
+      <div class="account-fields">
+        <div class="form-field">
+          <label for="new-email">Nuevo email</label>
+          <input
+            id="new-email"
+            type="email"
+            formControlName="email"
+            placeholder="Ingresá tu nuevo email"
+            autocomplete="email"
+            [class.input-error]="accountForm.controls.email.touched && accountForm.controls.email.invalid"
+          />
+          @if (accountForm.controls.email.touched && accountForm.controls.email.invalid) {
+            <small class="field-error">Ingresá un email válido.</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="new-password">Nueva contraseña</label>
+          <input
+            id="new-password"
+            type="password"
+            formControlName="password"
+            placeholder="Ingresá tu nueva contraseña"
+            autocomplete="new-password"
+          />
+        </div>
+      </div>
+
+      <footer class="form-footer">
+        <p>Los campos vacíos conservan su valor actual.</p>
+        <button type="submit" [disabled]="accountForm.invalid || !hasChanges">
+          Guardar cambios
+          <img src="icons/icon-arrow-right.svg" alt="" />
+        </button>
+      </footer>
+    </form>
+  </div>
+</section>
+
+@if (showNotice()) {
+  <app-toast
+    type="info"
+    title="Cambios sin guardar"
+    message="La opción de guardar cambios estará disponible próximamente."
+    (dismissed)="showNotice.set(false)"
+  />
+}
