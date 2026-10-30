@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { CsrfService } from './csrf.service';
-import { catchError, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, finalize, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { Account, AuthResponse, AuthSession, loginDTO } from '../models/auth.models';
 
 @Injectable({
@@ -32,7 +32,16 @@ export class AuthService {
   refresh(): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.url}/api/auth/refresh`, {}, this.getAuthOptions())
-      .pipe(tap((response) => this.setSession(response)));
+      .pipe(
+        tap((response) => this.setSession(response)),
+        catchError((error: unknown) => {
+          if (error instanceof HttpErrorResponse && error.status === 401) {
+            this.clearSession();
+          }
+
+          return throwError(() => error);
+        }),
+      );
   }
 
   logout(): Observable<void> {

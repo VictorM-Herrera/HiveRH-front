@@ -6,7 +6,6 @@ import {
   distinctUntilChanged,
   EMPTY,
   filter,
-  finalize,
   map,
   merge,
   startWith,
@@ -65,7 +64,12 @@ export class App {
         switchMap((identifier) => {
           this._authService.clearAccount();
           this._employeeService.clearCurrentEmployee();
-          if (identifier === null) return EMPTY;
+          if (identifier === null) {
+            if (this.router.url !== '/') {
+              this.router.navigate(['/'], { replaceUrl: true });
+            }
+            return EMPTY;
+          }
 
           const account$ = this._authService.loadEmail().pipe(
             catchError((err) => {
@@ -98,15 +102,8 @@ export class App {
   }
 
   logout(): void {
-    this._authService
-      .logout()
-      .pipe(
-        finalize(() => {
-          this.router.navigate(['/']);
-        }),
-      )
-      .subscribe({
-        error: (err) => console.log('Error al cerrar sesion', err),
-      });
+    this._authService.logout().subscribe({
+      error: (err) => console.log('Error al cerrar sesion', err),
+    });
   }
 }
