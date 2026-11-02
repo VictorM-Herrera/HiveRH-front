@@ -2,8 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { CsrfService } from './csrf.service';
-import { catchError, finalize, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
-import { Account, AuthResponse, AuthSession, loginDTO } from '../models/auth.models';
+import { catchError, defer, finalize, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { AuthResponse, AuthSession, loginDTO } from '../models/auth.models';
 
 @Injectable({
   providedIn: 'root',
@@ -15,11 +15,9 @@ export class AuthService {
 
   private readonly _accessToken = signal<string | null>(null);
   private readonly _session = signal<AuthSession | null>(null);
-  private readonly _account = signal<Account | null>(null);
 
   readonly accessToken = this._accessToken.asReadonly();
   readonly session = this._session.asReadonly();
-  readonly email = computed(() => this._account()?.email ?? '');
   readonly isAuthenticated = computed(() => this.accessToken() !== null);
   readonly roles = computed(() => this._session()?.roles ?? []);
 
@@ -45,9 +43,9 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    return this.http
-      .post<void>(`${this.url}/api/auth/logout`, {}, this.getAuthOptions())
-      .pipe(finalize(() => this.clearSession()));
+    return defer(() =>
+      this.http.post<void>(`${this.url}/api/auth/logout`, {}, this.getAuthOptions()),
+    ).pipe(finalize(() => this.clearSession()));
   }
 
   private setSession(response: AuthResponse): void {
@@ -73,7 +71,6 @@ export class AuthService {
   private clearSession(): void {
     this._accessToken.set(null);
     this._session.set(null);
-    this.clearAccount();
   }
 
   private getAuthOptions() {
@@ -86,20 +83,5 @@ export class AuthService {
         'X-XSRF-TOKEN': csrfToken,
       },
     };
-  }
-
-  loadEmail(): Observable<string> {
-    return this.getAccount().pipe(
-      tap((account) => this._account.set(account)),
-      map((account) => account.email),
-    );
-  }
-
-  clearAccount(): void {
-    this._account.set(null);
-  }
-
-  private getAccount(): Observable<Account> {
-    return this.http.get<Account>(`${this.url}/api/accounts/me`);
   }
 }
