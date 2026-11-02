@@ -7,7 +7,14 @@
       <app-staff-home />
     }
     @case ('EMPLOYEE') {
-      <app-employee-home />
+      <app-employee-home [requests]="requests()" />
     }
   }
 </div>
+
+@if (isLoading()) {
+  <app-loading-circle message="Cargando tus solicitudes..." />
+}
+@if (error(); as message) {
+  <app-toast [message]="message" (dismissed)="error.set(null)" />
+}
