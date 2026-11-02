@@ -12,7 +12,7 @@ import { routes } from '../../../app.routes';
 @Component({
   selector: 'app-admin-home',
   templateUrl: './admin-home.html',
-  styleUrls: ['../home.css', '../employee-home/employee-home.css'],
+  styleUrls: ['./admin-home.css', '../employee-home/employee-home.css'],
   imports: [HiveCarousel],
 })
 export class AdminHome {

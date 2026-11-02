@@ -8,15 +8,15 @@
   </article>
 
   <!-- Info de la empresa -->
-  <article>
-    <div class="summary-grid">
-        <p  class="summary-label">{{branches().length}} Sucursales</p>
+  <article class="summary-grid-admin">
+    <div  class="summary-card">
+        <p >{{branches().length}} Sucursales</p>
     </div>
-    <div class="">
-        <p  class="summary-label">{{departments().length}} Departamentos</p>
+    <div class="summary-card">
+        <p>{{departments().length}} Departamentos</p>
     </div>
-    <div class="">
-        <p  class="summary-label">{{positions().length}} Puestos</p>
+    <div class="summary-card">
+        <p >{{positions().length}} Puestos</p>
     </div>
   </article>
 
@@ -29,25 +29,25 @@
 
 
   <!-- narvar de abajo -->
-  <article class="navbar_gestion">
+  <article class="summary-grid-admin">
     <h1>Gestion de equipo</h1>
     <p>Operaciones de personas en un mismo lugar</p>
     <div>
-      <button>
+      <button class="summary-card">
         <img class="hive-icon" src="icons/icon-users.svg" alt="" />
         <span>
           <h2>Empleados</h2>
           <p>Gestion personas</p>
         </span>
       </button>
-      <button>
+      <button class="summary-card">
         <img class="hive-icon" src="icons/icon-calendar.svg" alt="" />
         <span>
           <h2>Vacaciones</h2>
           <p>Revisar solicitudes</p>
         </span>
       </button>
-      <button>
+      <button class="summary-card">
         <img class="hive-icon" src="icons/navigation/file.svg" alt="" />
         <span>
           <h2>Licencias</h2>
