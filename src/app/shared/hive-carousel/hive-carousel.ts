@@ -5,6 +5,7 @@ export interface HiveCarouselItem {
   label: string;
   description: string;
   icon: string;
+  route?: string;
 }
 
 @Component({

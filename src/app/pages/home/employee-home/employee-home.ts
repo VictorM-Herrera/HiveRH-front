@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { ToastComponent } from '../../../components/toast/toast';
 import { EmployeeService } from '../../../services/employee.service';
 import { HiveCarousel, HiveCarouselItem } from '../../../shared/hive-carousel/hive-carousel';
@@ -12,6 +13,7 @@ import { EmployeeHomeRequest } from './employee-home.models';
 })
 export class EmployeeHome {
   private readonly employeeService = inject(EmployeeService);
+  private readonly router = inject(Router);
   private readonly today = new Intl.DateTimeFormat('sv-SE', {
     timeZone: 'America/Argentina/Buenos_Aires',
   }).format(new Date());
@@ -50,6 +52,7 @@ export class EmployeeHome {
   readonly hiveItems: readonly HiveCarouselItem[] = [
     {
       id: 'vacations',
+      route: '/my-vacations',
       label: 'Mis vacaciones',
       description: 'Solicitar y consultar',
       icon: 'icons/navigation/sun.svg',
@@ -86,6 +89,10 @@ export class EmployeeHome {
   }
 
   openSection(item: HiveCarouselItem): void {
+    if (item.route) {
+      this.router.navigate([item.route]);
+      return;
+    }
     this.notice.set(`La sección «${item.label}» estará disponible próximamente.`);
   }
 }

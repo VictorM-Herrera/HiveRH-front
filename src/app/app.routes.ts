@@ -16,5 +16,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/my-account/my-account').then((m) => m.MyAccount),
     title: 'Mi cuenta',
   },
+  {
+    path: 'my-vacations',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/my-vacations/my-vacations').then((m) => m.MyVacations),
+    title: 'Mis vacaciones',
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

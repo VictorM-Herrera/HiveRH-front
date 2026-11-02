@@ -32,7 +32,7 @@ export class NavBar {
   private readonly userMenu = viewChild<ElementRef<HTMLElement>>('userMenu');
 
   readonly navigationItems: readonly NavigationItem[] = [
-    { id: 'sun', label: 'Mis vacaciones', icon: 'sun'},
+    { id: 'sun', label: 'Mis vacaciones', icon: 'sun', route: '/my-vacations' },
     { id: 'file', label: 'Mis licencias', icon: 'file' },
     { id: 'clock', label: 'Mi horario', icon: 'clock' },
     { id: 'profile', label: 'Mi Perfil', icon: 'profile-white' },

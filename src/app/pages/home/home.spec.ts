@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Role } from '../../models/auth.models';
 import { AuthService } from '../../services/auth.service';
@@ -31,6 +32,7 @@ describe('Employee home', () => {
     TestBed.configureTestingModule({
       imports: [Home, EmployeeHome, HiveCarousel],
       providers: [
+        provideRouter([]),
         { provide: AuthService, useValue: { roles: roles.asReadonly() } },
         { provide: EmployeeService, useValue: { currentEmployee: employee.asReadonly() } },
       ],
@@ -110,6 +112,16 @@ describe('Employee home', () => {
     { id: 'leaves', label: 'Mis licencias', description: '', icon: '' },
     { id: 'profile', label: 'Mi perfil', description: '', icon: '' },
   ];
+
+  it('opens Mis vacaciones from the active home carousel card', () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(EmployeeHome);
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('.hive-card.is-active').click();
+    expect(navigate).toHaveBeenCalledWith(['/my-vacations']);
+    expect(fixture.componentInstance.notice()).toBeNull();
+    navigate.mockRestore();
+  });
 
   it('wraps through the carousel and changes the centered card', () => {
     const fixture = TestBed.createComponent(HiveCarousel);
