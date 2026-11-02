@@ -1,4 +1,61 @@
 <section class="role-placeholder">
-  <h1>Inicio de administración</h1>
-  <p>El inicio para administradores estará disponible próximamente.</p>
+
+  <!-- mensaje de bienvenida -->
+  <article>
+    <p>Organizacion</p>
+    <h1>Hola, {{auth.session()?.identifier}}.</h1>
+    <p>Una buena organización empieza por una colmena conectada.</p>
+  </article>
+
+  <!-- Info de la empresa -->
+  <article>
+    <div class="summary-grid">
+        <p  class="summary-label">{{branches().length}} Sucursales</p>
+    </div>
+    <div class="">
+        <p  class="summary-label">{{departments().length}} Departamentos</p>
+    </div>
+    <div class="">
+        <p  class="summary-label">{{positions().length}} Puestos</p>
+    </div>
+  </article>
+
+
+  <!-- carrusel -->
+  <article>
+    <h1>Estructura de la organizacion.</h1>
+    <app-hive-carousel [items]="hiveItems"/>
+  </article>
+
+
+  <!-- narvar de abajo -->
+  <article class="navbar_gestion">
+    <h1>Gestion de equipo</h1>
+    <p>Operaciones de personas en un mismo lugar</p>
+    <div>
+      <button>
+        <img class="hive-icon" src="icons/icon-users.svg" alt="" />
+        <span>
+          <h2>Empleados</h2>
+          <p>Gestion personas</p>
+        </span>
+      </button>
+      <button>
+        <img class="hive-icon" src="icons/icon-calendar.svg" alt="" />
+        <span>
+          <h2>Vacaciones</h2>
+          <p>Revisar solicitudes</p>
+        </span>
+      </button>
+      <button>
+        <img class="hive-icon" src="icons/navigation/file.svg" alt="" />
+        <span>
+          <h2>Licencias</h2>
+          <p>Revisar certificados</p>
+        </span>
+      </button>
+    </div>
+
+  </article>
+
 </section>
