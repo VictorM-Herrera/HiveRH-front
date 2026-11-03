@@ -151,16 +151,6 @@
   font-size: 10px;
   line-height: 18px;
 }
-.cancel-edit {
-  display: block;
-  margin: 0 auto 14px;
-  border: 0;
-  background: transparent;
-  color: var(--hive-green);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
 .vacation-note {
   display: flex;
   align-items: center;

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ToastComponent } from '../../../components/toast/toast';
 import { EmployeeService } from '../../../services/employee.service';
 import { HiveCarousel, HiveCarouselItem } from '../../../shared/hive-carousel/hive-carousel';
-import { EmployeeHomeRequest } from './employee-home.models';
+import { EmployeeHomeRequest } from '../../../models/employee-home.models';
 
 @Component({
   selector: 'app-employee-home',
@@ -18,7 +18,6 @@ export class EmployeeHome {
     timeZone: 'America/Argentina/Buenos_Aires',
   }).format(new Date());
 
-  // Se conectará al servicio de solicitudes cuando esté disponible.
   readonly requests = input<readonly EmployeeHomeRequest[]>([]);
   readonly employeeName = computed(() => this.employeeService.currentEmployee()?.name ?? '');
   readonly showAllRequests = signal(false);
@@ -47,6 +46,7 @@ export class EmployeeHome {
     PENDING: 'Pendiente',
     APPROVED: 'Aprobada',
     REJECTED: 'Rechazada',
+    CANCELLED: 'Cancelada',
   };
 
   readonly hiveItems: readonly HiveCarouselItem[] = [

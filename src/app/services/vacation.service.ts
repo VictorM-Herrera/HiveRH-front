@@ -6,17 +6,15 @@ import {
   VacationFilters,
   VacationRequest,
 } from '../models/vacation.models';
-import { Observable, tap } from 'rxjs';
+import { EMPTY, expand, Observable, reduce, tap } from 'rxjs';
 import { PageResponse } from '../models/page-response.models';
 import { environment } from '../../environments/environment';
-import { CsrfService } from './csrf.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VacationService {
   private readonly http = inject(HttpClient);
-  private readonly csrf = inject(CsrfService);
   private readonly baseUrl = environment.baseUrl;
   private readonly _vacationsPage = signal<PageResponse<Vacation> | null>(null);
 
@@ -39,35 +37,31 @@ export class VacationService {
       .pipe(tap((response) => this._vacationsPage.set(response)));
   }
 
-  createVacation(request: VacationRequest): Observable<Vacation> {
-    return this.http.post<Vacation>(
-      `${this.baseUrl}/api/vacations`,
-      request,
-      this.getWriteOptions(),
+  getAllMyVacations(): Observable<Vacation[]> {
+    return this.getMyVacations().pipe(
+      expand((response) =>
+        response.page + 1 < response.totalPages
+          ? this.getMyVacations({ page: response.page + 1, size: response.size })
+          : EMPTY,
+      ),
+      reduce((vacations, response) => [...vacations, ...response.element], [] as Vacation[]),
     );
   }
 
+  deleteVacation(vacationId: number) {
+    return this.http.delete(`${this.baseUrl}/api/vacations/${vacationId}`);
+  }
+
+  createVacation(request: VacationRequest): Observable<Vacation> {
+    return this.http.post<Vacation>(`${this.baseUrl}/api/vacations`, request);
+  }
+
   updateVacation(idVacation: number, request: VacationRequest): Observable<Vacation> {
-    return this.http.put<Vacation>(
-      `${this.baseUrl}/api/vacations/${idVacation}`,
-      request,
-      this.getWriteOptions(),
-    );
+    return this.http.put<Vacation>(`${this.baseUrl}/api/vacations/${idVacation}`, request);
   }
 
   clearVacations(): void {
     this._vacationsPage.set(null);
-  }
-
-  private getWriteOptions() {
-    const token = this.csrf.token();
-    if (!token) {
-      throw new Error('No pudimos preparar la sesión. Recargá la página e intentá nuevamente.');
-    }
-    return {
-      withCredentials: true,
-      headers: { 'X-XSRF-TOKEN': token },
-    };
   }
 
   private buildParams(filters: VacationFilters | MyVacationFilters): HttpParams {

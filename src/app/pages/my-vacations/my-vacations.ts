@@ -1,25 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Component,
-  computed,
-  DestroyRef,
-  ElementRef,
-  inject,
-  OnInit,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { defer, finalize, Subscription } from 'rxjs';
 import { LoadingCircleComponent } from '../../components/loading-circle/loading-circle';
 import { ToastComponent, ToastType } from '../../components/toast/toast';
-import {
-  MyVacationFilters,
-  Vacation,
-  VacationRequest,
-  VacationStatus,
-} from '../../models/vacation.models';
+import { MyVacationFilters, VacationRequest, VacationStatus } from '../../models/vacation.models';
 import { EmployeeService } from '../../services/employee.service';
 import { VacationService } from '../../services/vacation.service';
 import {
@@ -42,7 +28,6 @@ export class MyVacations implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly requestPanel = viewChild<ElementRef<HTMLElement>>('requestPanel');
   private listRequest: Subscription | null = null;
   private appliedDates: Pick<MyVacationFilters, 'startDate' | 'endDate'> = {};
 
@@ -52,18 +37,11 @@ export class MyVacations implements OnInit {
   readonly isLoading = signal(false);
   readonly isSubmitting = signal(false);
   readonly loadFailed = signal(false);
-  readonly editingVacation = signal<Vacation | null>(null);
   readonly toast = signal<{ message: string; type: ToastType; title: string } | null>(null);
   readonly vacationsPage = this.vacationService.vacationsPage;
   readonly vacations = this.vacationService.vacations;
   readonly employee = this.employeeService.currentEmployee;
-  readonly today = todayDate();
-
-  readonly minStartDate = computed(() => {
-    const requestedOn = this.editingVacation()?.requestDate || this.today;
-    const minimum = addBusinessDays(requestedOn, 5);
-    return minimum < this.today ? this.today : minimum;
-  });
+  readonly minStartDate = addBusinessDays(todayDate(), 5);
 
   readonly vacationForm = this.fb.group(
     {
@@ -74,7 +52,7 @@ export class MyVacations implements OnInit {
       validators: (control) => {
         const rangeError = dateRangeValidator(control);
         const start = control.get('startDate')?.value;
-        return rangeError ?? (start && start < this.minStartDate() ? { noticePeriod: true } : null);
+        return rangeError ?? (start && start < this.minStartDate ? { noticePeriod: true } : null);
       },
     },
   );
@@ -195,16 +173,31 @@ export class MyVacations implements OnInit {
     this.loadVacations();
   }
 
-  beginEdit(vacation: Vacation): void {
-    if (vacation.status !== 'PENDING' || this.isSubmitting() || this.isLoading()) return;
-    this.editingVacation.set(vacation);
-    this.vacationForm.reset({ startDate: vacation.startDate, endDate: vacation.endDate });
-    this.requestPanel()?.nativeElement.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  cancelEdit(): void {
-    this.editingVacation.set(null);
-    this.vacationForm.reset();
+  deleteVacation(idVacation: number): void {
+    if (this.isSubmitting() || this.isLoading()) return;
+    this.toast.set(null);
+    this.isSubmitting.set(true);
+    this.vacationService
+      .deleteVacation(idVacation)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isSubmitting.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.toast.set({
+            type: 'success',
+            title: 'Solicitud eliminada',
+            message: 'Eliminamos tu solicitud de vacaciones.',
+          });
+          if (this.page() > 0 && this.vacations().length === 1) {
+            this.page.update((value) => value - 1);
+          }
+          this.loadVacations();
+        },
+        error: (error: unknown) =>
+          this.showError(error, 'No pudimos eliminar la solicitud. Intentá nuevamente.'),
+      });
   }
 
   submitVacation(): void {
@@ -218,23 +211,13 @@ export class MyVacations implements OnInit {
       );
       return;
     }
-    const editing = this.editingVacation();
-    if (editing && (editing.status !== 'PENDING' || editing.dniEmployee !== employee.dni)) {
-      this.showError(null, 'Solo podés modificar tus propias solicitudes pendientes.');
-      return;
-    }
     const request: VacationRequest = {
       ...this.vacationForm.getRawValue(),
       dniEmployee: employee.dni,
-      ...(editing ? { requestDate: editing.requestDate } : {}),
     };
     this.toast.set(null);
     this.isSubmitting.set(true);
-    defer(() =>
-      editing
-        ? this.vacationService.updateVacation(editing.idVacation, request)
-        : this.vacationService.createVacation(request),
-    )
+    defer(() => this.vacationService.createVacation(request))
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isSubmitting.set(false)),
@@ -243,12 +226,10 @@ export class MyVacations implements OnInit {
         next: () => {
           this.toast.set({
             type: 'success',
-            title: editing ? 'Solicitud actualizada' : 'Solicitud enviada',
-            message: editing
-              ? 'Guardamos los cambios de tus vacaciones.'
-              : 'Tu solicitud quedó pendiente de revisión.',
+            title: 'Solicitud enviada',
+            message: 'Tu solicitud quedó pendiente de revisión.',
           });
-          this.cancelEdit();
+          this.vacationForm.reset();
           this.status.set('');
           this.filterForm.reset();
           this.appliedDates = {};

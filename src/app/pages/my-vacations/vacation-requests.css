@@ -93,10 +93,6 @@
   border-bottom: 1px solid var(--hive-line);
   padding: 19px 2px 19px 10px;
 }
-.vacation-row.is-editing {
-  border-radius: 10px;
-  background: #fff9e9;
-}
 .vacation-copy {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -136,24 +132,25 @@
   background: #fbeaea;
   color: #b04444;
 }
-.edit-request {
+.delete-request {
   display: grid;
   width: 28px;
   height: 28px;
   place-items: center;
   border: 0;
   border-radius: 8px;
-  background: var(--hive-sage);
+  background: #fbeaea;
   opacity: 0;
   cursor: pointer;
   transition: opacity 140ms ease;
 }
-.edit-request img {
+.delete-request img {
   width: 16px;
   height: 16px;
+  user-select: none;
 }
-.vacation-row:hover .edit-request,
-.vacation-row:focus-within .edit-request {
+.vacation-row:hover .delete-request,
+.vacation-row:focus-within .delete-request {
   opacity: 1;
 }
 .empty-requests {
@@ -230,7 +227,7 @@ button:disabled {
   opacity: 0.5;
 }
 @media (hover: none) {
-  .edit-request {
+  .delete-request {
     opacity: 1;
   }
 }

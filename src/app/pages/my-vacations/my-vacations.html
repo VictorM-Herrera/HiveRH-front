@@ -7,30 +7,18 @@
   <div class="vacations-grid">
     <form
       class="vacation-card request-form"
-      #requestPanel
       [formGroup]="vacationForm"
       (ngSubmit)="submitVacation()"
     >
       <header class="card-heading">
-        <h2>{{ editingVacation() ? 'Modificar solicitud' : 'Solicitar vacaciones' }}</h2>
-        <p>
-          {{
-            editingVacation()
-              ? 'Actualizá las fechas de tu solicitud pendiente.'
-              : 'Elegí el período de tu próximo descanso.'
-          }}
-        </p>
+        <h2>Solicitar vacaciones</h2>
+        <p>Elegí el período de tu próximo descanso.</p>
       </header>
 
       <div class="date-fields">
         <div class="form-field">
           <label for="vacation-start">Desde</label>
-          <input
-            id="vacation-start"
-            type="date"
-            formControlName="startDate"
-            [min]="minStartDate()"
-          />
+          <input id="vacation-start" type="date" formControlName="startDate" [min]="minStartDate" />
         </div>
         <div class="form-field">
           <label for="vacation-end">Hasta</label>
@@ -38,7 +26,7 @@
             id="vacation-end"
             type="date"
             formControlName="endDate"
-            [min]="vacationForm.controls.startDate.value || minStartDate()"
+            [min]="vacationForm.controls.startDate.value || minStartDate"
           />
         </div>
       </div>
@@ -47,9 +35,7 @@
         <p class="field-error">La fecha de fin no puede ser anterior a la de inicio.</p>
       }
       @if (vacationForm.touched && vacationForm.hasError('noticePeriod')) {
-        <p class="field-error">
-          El período debe comenzar desde el {{ formatDate(minStartDate()) }}.
-        </p>
+        <p class="field-error">El período debe comenzar desde el {{ formatDate(minStartDate) }}.</p>
       }
       @if (
         vacationForm.touched &&
@@ -75,22 +61,12 @@
       </div>
 
       <footer class="request-actions">
-        @if (editingVacation()) {
-          <button
-            type="button"
-            class="cancel-edit"
-            [disabled]="isSubmitting()"
-            (click)="cancelEdit()"
-          >
-            Cancelar edición
-          </button>
-        }
         <button
           type="submit"
           class="submit-request"
           [disabled]="vacationForm.invalid || isSubmitting() || isLoading() || !employee()"
         >
-          {{ editingVacation() ? 'Guardar cambios' : 'Enviar solicitud' }}
+          Enviar solicitud
           <img src="icons/icon-arrow-right.svg" alt="" />
         </button>
         <p>Podés revisar todas tus solicitudes desde esta misma pantalla.</p>
@@ -152,10 +128,7 @@
 
       <div class="requests-list">
         @for (vacation of vacations(); track vacation.idVacation) {
-          <article
-            class="vacation-row"
-            [class.is-editing]="editingVacation()?.idVacation === vacation.idVacation"
-          >
+          <article class="vacation-row">
             <div class="vacation-copy">
               <h3>{{ formatPeriod(vacation.startDate, vacation.endDate) }}</h3>
               <p>
@@ -173,12 +146,12 @@
               @if (vacation.status === 'PENDING') {
                 <button
                   type="button"
-                  class="edit-request"
-                  title="Modificar solicitud"
+                  class="delete-request"
+                  title="Eliminar solicitud"
                   [disabled]="isSubmitting()"
-                  (click)="beginEdit(vacation)"
+                  (click)="deleteVacation(vacation.idVacation)"
                 >
-                  <img src="icons/icon-pencil.svg" alt="" />
+                  <img src="icons/icon-trash.svg" alt="" draggable="false" />
                 </button>
               }
             </span>
@@ -240,7 +213,7 @@
 
 @if (isLoading() || isSubmitting()) {
   <app-loading-circle
-    [message]="isSubmitting() ? 'Guardando solicitud...' : 'Cargando tus vacaciones...'"
+    [message]="isSubmitting() ? 'Procesando solicitud...' : 'Cargando tus vacaciones...'"
   />
 }
 @if (toast(); as notification) {
