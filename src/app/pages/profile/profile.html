@@ -1,0 +1,231 @@
+<section class="profile-page">
+  <header class="page-heading">
+    <p class="eyebrow">{{ isOwnProfile() ? 'MI ESPACIO' : 'EMPLEADOS' }}</p>
+    <h1>{{ isOwnProfile() ? 'Mi perfil' : 'Perfil de empleado' }}</h1>
+  </header>
+
+  @if (employee(); as person) {
+    <section class="profile-hero">
+      <div class="avatar-area">
+        <div class="profile-avatar">
+          <img
+            [src]="profilePicture() || 'default-avatar.png'"
+            [alt]="'Foto de ' + person.name"
+            draggable="false"
+          />
+          @if (isOwnProfile()) {
+            <button
+              type="button"
+              class="change-photo"
+              title="Cambiar foto de perfil"
+              [disabled]="isSaving()"
+              (click)="photoInput.click()"
+            >
+              <img src="icons/icon-pencil.svg" alt="" draggable="false" />
+              <span>Cambiar foto</span>
+            </button>
+          }
+        </div>
+        @if (isOwnProfile()) {
+          <small>JPG o PNG · hasta 2 MB</small>
+        }
+        <input
+          #photoInput
+          type="file"
+          accept="image/jpeg,image/png"
+          hidden
+          (change)="onPhotoSelected($event)"
+        />
+      </div>
+
+      <div class="profile-intro">
+        <div class="identity-line">
+          <span class="employee-label">PERFIL DE EMPLEADO</span>
+          <span class="status-badge" [class.is-terminated]="person.status === 'TERMINATED'">
+            <span class="status-dot"></span
+            >{{ person.status === 'ACTIVE' ? 'Activo' : 'Desvinculado' }}
+          </span>
+        </div>
+        <h2>{{ person.name }} {{ person.lastName }}</h2>
+        <p class="position-name">
+          {{ activeAssignment()?.positionName || 'Sin asignación activa' }}
+        </p>
+        <div class="profile-meta">
+          <span>DNI {{ person.dni }}</span>
+          @if (activeAssignment(); as assignment) {
+            <span>{{ assignment.branchName }} · {{ assignment.departmentName }}</span>
+          }
+        </div>
+      </div>
+
+      @if (canEdit()) {
+        <button type="button" class="edit-button" (click)="isEditing.set(true)">
+          <img src="icons/icon-pencil.svg" alt="" draggable="false" />
+          Editar empleado
+        </button>
+      }
+    </section>
+
+    <div class="details-grid">
+      <section class="detail-card">
+        <header class="card-heading">
+          <span class="card-icon"
+            ><img src="icons/navigation/profile.svg" alt="" draggable="false"
+          /></span>
+          <div>
+            <h2>Datos personales</h2>
+            <p>Identificación y contacto.</p>
+          </div>
+        </header>
+        <dl class="data-grid">
+          <div>
+            <dt>Nombre</dt>
+            <dd>{{ person.name }}</dd>
+          </div>
+          <div>
+            <dt>Apellido</dt>
+            <dd>{{ person.lastName }}</dd>
+          </div>
+          <div>
+            <dt>DNI</dt>
+            <dd>{{ person.dni }}</dd>
+          </div>
+          <div>
+            <dt>Género</dt>
+            <dd>{{ genreLabels[person.genre] }}</dd>
+          </div>
+          <div>
+            <dt>Fecha de nacimiento</dt>
+            <dd>{{ person.birthdate | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
+          </div>
+          <div>
+            <dt>Teléfono</dt>
+            <dd>{{ person.phoneNumber || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Ciudad</dt>
+            <dd>{{ person.city || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Dirección</dt>
+            <dd>{{ person.address || '—' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="detail-card">
+        <header class="card-heading">
+          <span class="card-icon"
+            ><img src="icons/navigation/briefcase.svg" alt="" draggable="false"
+          /></span>
+          <div>
+            <h2>Información laboral</h2>
+            <p>Tu vínculo con la colmena.</p>
+          </div>
+        </header>
+        <dl class="data-grid">
+          <div>
+            <dt>Fecha de ingreso</dt>
+            <dd>{{ person.hireDate | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
+          </div>
+          <div>
+            <dt>Estado</dt>
+            <dd>{{ person.status === 'ACTIVE' ? 'Activo' : 'Desvinculado' }}</dd>
+          </div>
+          <div>
+            <dt>Fecha de baja</dt>
+            <dd>{{ (person.terminationDate | date: 'dd/MM/yyyy' : 'UTC') || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Sucursal actual</dt>
+            <dd>{{ activeAssignment()?.branchName || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Departamento actual</dt>
+            <dd>{{ activeAssignment()?.departmentName || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Puesto actual</dt>
+            <dd>{{ activeAssignment()?.positionName || '—' }}</dd>
+          </div>
+        </dl>
+        <div class="salary-summary">
+          <span>Salario base</span><strong>{{ formatSalary(person.baseSalary) }}</strong>
+        </div>
+      </section>
+    </div>
+
+    <section class="detail-card assignments-card">
+      <header class="card-heading">
+        <span class="card-icon"
+          ><img src="icons/navigation/building.svg" alt="" draggable="false"
+        /></span>
+        <div>
+          <h2>Asignaciones laborales</h2>
+          <p>Sucursales, departamentos y puestos del empleado.</p>
+        </div>
+      </header>
+      @if (person.assignments.length) {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Sucursal</th>
+                <th>Departamento</th>
+                <th>Puesto</th>
+                <th>Desde</th>
+                <th>Hasta</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (assignment of person.assignments; track $index) {
+                <tr>
+                  <td>{{ assignment.branchName }}</td>
+                  <td>{{ assignment.departmentName }}</td>
+                  <td>{{ assignment.positionName }}</td>
+                  <td>{{ assignment.startDate | date: 'dd/MM/yyyy' : 'UTC' }}</td>
+                  <td>{{ (assignment.endDate | date: 'dd/MM/yyyy' : 'UTC') || 'Actualidad' }}</td>
+                  <td>
+                    <span class="assignment-badge" [class.is-current]="assignment.active">{{
+                      assignment.active ? 'Activo' : 'Finalizada'
+                    }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="empty-assignments">Todavía no hay asignaciones registradas.</p>
+      }
+    </section>
+  } @else if (!isLoading()) {
+    <section class="detail-card empty-profile">
+      <img src="icons/navigation/profile.svg" alt="" draggable="false" />
+      <h2>No hay un perfil de empleado para mostrar</h2>
+      <p>No pudimos obtener los datos de este empleado.</p>
+    </section>
+  }
+</section>
+
+@if (isEditing() && canEdit()) {
+  @if (employee(); as person) {
+    <app-employee-edit
+      [employee]="person"
+      (saved)="onEmployeeSaved($event)"
+      (closed)="isEditing.set(false)"
+    />
+  }
+}
+@if (isLoading() || isSaving()) {
+  <app-loading-circle [message]="isSaving() ? 'Actualizando tu foto...' : 'Cargando perfil...'" />
+}
+@if (toast(); as notification) {
+  <app-toast
+    [message]="notification.message"
+    [type]="notification.type"
+    [title]="notification.title"
+    (dismissed)="toast.set(null)"
+  />
+}

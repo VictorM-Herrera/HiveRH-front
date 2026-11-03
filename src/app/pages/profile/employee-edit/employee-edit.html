@@ -1,0 +1,79 @@
+<div class="modal-backdrop" (click)="close()">
+  <section class="edit-modal" (click)="$event.stopPropagation()">
+    <header class="modal-heading">
+      <div>
+        <p class="eyebrow">DATOS DEL EMPLEADO</p>
+        <h2>Editar empleado</h2>
+        <p>{{ employee().name }} {{ employee().lastName }}</p>
+      </div>
+      <button
+        type="button"
+        class="close-button"
+        title="Cerrar"
+        [disabled]="isSaving()"
+        (click)="close()"
+      >
+        <img src="icons/icon-close.svg" alt="" draggable="false" />
+      </button>
+    </header>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="modal-body">
+        <h3>Datos personales</h3>
+        <div class="form-grid">
+          <label>Nombre<input formControlName="name" autocomplete="given-name" /></label>
+          <label>Apellido<input formControlName="lastName" autocomplete="family-name" /></label>
+          <label>DNI<input formControlName="dni" inputmode="numeric" /></label>
+          <label
+            >Género<select formControlName="genre">
+              <option value="FEMALE">Femenino</option>
+              <option value="MALE">Masculino</option>
+              <option value="NON_BINARY">No binario</option>
+              <option value="OTHER">Otro</option>
+            </select></label
+          >
+          <label>Fecha de nacimiento<input type="date" formControlName="birth_date" /></label>
+          <label
+            >Teléfono<input type="tel" formControlName="phoneNumber" autocomplete="tel"
+          /></label>
+          <label>Ciudad<input formControlName="city" autocomplete="address-level2" /></label>
+          <label>Dirección<input formControlName="address" autocomplete="street-address" /></label>
+        </div>
+        <h3 class="employment-heading">Información laboral</h3>
+        <div class="form-grid">
+          <label>Fecha de ingreso<input type="date" formControlName="hire_date" /></label>
+          <label
+            >Salario base<input type="number" formControlName="base_salary" min="0.01" step="0.01"
+          /></label>
+          <label
+            >Estado<select formControlName="status">
+              <option value="ACTIVE">Activo</option>
+              <option value="TERMINATED">Desvinculado</option>
+            </select></label
+          >
+          <label
+            >Fecha de baja (opcional)<input type="date" formControlName="termination_date"
+          /></label>
+        </div>
+        @if (form.touched && form.invalid) {
+          <p class="field-error">
+            Completá los campos obligatorios e ingresá un salario mayor a cero.
+          </p>
+        }
+      </div>
+      <footer class="modal-footer">
+        <button type="button" class="cancel-button" [disabled]="isSaving()" (click)="close()">
+          Cancelar
+        </button>
+        <button type="submit" class="save-button" [disabled]="form.invalid || isSaving()">
+          Guardar cambios<img src="icons/icon-arrow-right.svg" alt="" draggable="false" />
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>
+@if (isSaving()) {
+  <app-loading-circle message="Guardando datos del empleado..." />
+}
+@if (error(); as message) {
+  <app-toast [message]="message" (dismissed)="error.set(null)" />
+}
