@@ -200,6 +200,9 @@
   font-size: 12px;
   line-height: 19px;
 }
+.sub-text{
+  color: #6B736C;
+}
 
 @media (max-width: 600px) {
   .summary-grid {

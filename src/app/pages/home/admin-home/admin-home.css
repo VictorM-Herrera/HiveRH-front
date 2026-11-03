@@ -56,6 +56,15 @@
   flex: 0 0 auto;
   filter: brightness(0);
 }
+.hive-icon-bg {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #FFF2D2;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
 
 @media (max-width: 600px) {
   .summary-grid-admin {
