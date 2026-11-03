@@ -8,6 +8,7 @@ import { Position } from '../../../models/position';
 import { PositionService } from '../../../services/position.service';
 import { HiveCarousel, HiveCarouselItem } from '../../../shared/hive-carousel/hive-carousel';
 import { routes } from '../../../app.routes';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-home',
@@ -17,6 +18,7 @@ import { routes } from '../../../app.routes';
 })
 export class AdminHome {
   readonly auth = inject(AuthService)
+  private readonly router = inject(Router)
 
   private readonly branchService = inject(BranchService);
   private readonly departmentService = inject(DepartmentService);
@@ -79,4 +81,10 @@ export class AdminHome {
   }
   
 
+  openSection(item: HiveCarouselItem): void {
+    if (item.route) {
+      this.router.navigate([item.route]);
+      return;
+    }
+  }
 }

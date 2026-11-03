@@ -1,6 +1,74 @@
 .summary-grid-admin {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-top: 24px;
+}
+
+.summary-grid-admin .summary-card {
+  min-width: 0;
+}
+
+.summary-grid-admin .summary-card p {
+  overflow-wrap: anywhere;
+}
+
+.footer-container{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 30px;
+}
+.footer-btns{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.footer-btns button {
+    display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 88px;
+  padding: 16px;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.footer-btns button span {
+  min-width: 0;
+}
+
+.footer-btns button h2,
+.footer-btns button p {
+  margin: 0;
+}
+
+.footer-btns button p {
+  margin-top: 4px;
+  color: var(--hive-muted);
+  font-size: 12px;
+}
+
+.hive-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  filter: brightness(0);
+}
+
+@media (max-width: 600px) {
+  .summary-grid-admin {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .summary-grid-admin .summary-card {
+    padding: 16px;
+  }
+
+  .footer-btns {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
