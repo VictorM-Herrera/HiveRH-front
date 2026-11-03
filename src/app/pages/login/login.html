@@ -64,5 +64,13 @@
             (dismissed)="error.set(null)"
         />
     }
+    @if (accountUpdateMessage(); as message) {
+        <app-toast
+            type="info"
+            title="Volvé a ingresar"
+            [message]="message"
+            (dismissed)="accountUpdateMessage.set(null)"
+        />
+    }
   </div>
 </section>

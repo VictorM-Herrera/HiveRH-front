@@ -1,0 +1,47 @@
+<div
+  class="hive-stage"
+  (keydown.arrowleft)="move(-1); $event.preventDefault()"
+  (keydown.arrowright)="move(1); $event.preventDefault()"
+>
+  @for (item of items(); track item.id; let index = $index) {
+    <button
+      type="button"
+      class="hive-card"
+      [class]="cardPosition(index)"
+      (click)="selectItem(index)"
+    >
+      <img
+        class="hive-shape"
+        [src]="index === selectedIndex() ? 'icons/honeycombs/hex-honey.svg' : 'icons/honeycombs/hex-white.svg'"
+        alt=""
+      />
+      <span class="hive-copy">
+        <img class="hive-icon" [src]="item.icon" alt="" />
+        <strong>{{ item.label }}</strong>
+        <small>{{ item.description }}</small>
+      </span>
+    </button>
+  }
+</div>
+
+@if (items().length > 1) {
+  <div class="carousel-controls">
+    <button type="button" class="carousel-arrow previous" title="Anterior" (click)="move(-1)">
+      <img src="icons/icon-chevron-right.svg" alt="" />
+    </button>
+    <div class="carousel-dots">
+      @for (item of items(); track item.id; let index = $index) {
+        <button
+          type="button"
+          class="carousel-dot"
+          [class.is-active]="index === selectedIndex()"
+          [title]="item.label"
+          (click)="selectedIndex.set(index)"
+        ></button>
+      }
+    </div>
+    <button type="button" class="carousel-arrow" title="Siguiente" (click)="move(1)">
+      <img src="icons/icon-chevron-right.svg" alt="" />
+    </button>
+  </div>
+}

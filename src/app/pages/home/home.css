@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.home-page {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: 32px clamp(20px, 3vw, 40px) 40px;
+}
+
+.role-placeholder h1 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  letter-spacing: -0.03em;
+}
+
+.role-placeholder p {
+  color: var(--hive-muted);
+  font-size: 14px;
+  line-height: 22px;
+}

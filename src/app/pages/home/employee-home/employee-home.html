@@ -1,0 +1,96 @@
+<header class="welcome">
+  <p class="eyebrow">MI ESPACIO</p>
+  <h1>Hola{{ employeeName() ? ', ' + employeeName() : '' }}.</h1>
+</header>
+
+<div class="summary-grid">
+  <section class="summary-card">
+    <p class="summary-label">En revisión</p>
+    <h2>
+      @if (pendingCount()) {
+        {{ pendingCount() }} {{ pendingCount() === 1 ? 'solicitud' : 'solicitudes' }}
+      } @else {
+        Sin pendientes
+      }
+    </h2>
+    <p class="summary-detail">
+      {{ pendingCount() ? 'Te avisamos cuando se resuelvan.' : 'No tenés solicitudes en revisión.' }}
+    </p>
+  </section>
+
+  <section class="summary-card">
+    <p class="summary-label">{{ upcomingTitle() }}</p>
+    @if (nextRequest(); as request) {
+      <h2>{{ formatDate(request.startDate) }}</h2>
+      <p class="summary-detail">
+        {{ statusLabels[request.status] }} · {{ formatDateRange(request) }}
+      </p>
+    } @else {
+      <h2>Sin próximas solicitudes</h2>
+      <p class="summary-detail">
+        {{ requests().length ? 'No tenés vacaciones ni licencias próximas.' : 'Todavía no pediste vacaciones ni licencias.' }}
+      </p>
+    }
+  </section>
+</div>
+
+<section class="hive-section">
+  <header class="section-heading">
+    <h2>Tu colmena</h2>
+  </header>
+  <app-hive-carousel [items]="hiveItems" (itemSelected)="openSection($event)" />
+</section>
+
+<section class="latest-requests">
+  <header class="section-heading">
+    <h2>Tus últimas solicitudes</h2>
+    @if (requests().length > 3) {
+      <button type="button" class="view-all" (click)="toggleAllRequests()">
+        {{ showAllRequests() ? 'Ver menos' : 'Ver todas' }}
+        <img src="icons/icon-arrow-right.svg" alt="" />
+      </button>
+    }
+  </header>
+
+  @if (latestRequests().length) {
+    <div class="request-list">
+      @for (request of latestRequests(); track request.id) {
+        <div class="request-row">
+          <span class="request-icon">
+            <img
+              [src]="request.type === 'VACATION' ? 'icons/navigation/sun.svg' : 'icons/navigation/file.svg'"
+              alt=""
+            />
+          </span>
+          <div class="request-copy">
+            <strong>{{ request.type === 'VACATION' ? 'Vacaciones' : 'Licencia' }}</strong>
+            <p>{{ formatDateRange(request) }}</p>
+          </div>
+          <span
+            class="status-badge"
+            [class.status-approved]="request.status === 'APPROVED'"
+            [class.status-pending]="request.status === 'PENDING'"
+            [class.status-rejected]="request.status === 'REJECTED'"
+          >{{ statusLabels[request.status] }}</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-requests">
+      <span class="empty-icon"><img src="icons/navigation/requests.svg" alt="" /></span>
+      <div>
+        <h3>Todavía no hiciste solicitudes</h3>
+        <p>Acá vas a encontrar tus vacaciones y licencias.</p>
+      </div>
+    </div>
+  }
+</section>
+
+@if (notice(); as message) {
+  <app-toast
+    type="info"
+    title="Próximamente"
+    [message]="message"
+    (dismissed)="notice.set(null)"
+  />
+}

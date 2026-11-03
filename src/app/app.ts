@@ -14,6 +14,7 @@ import {
 import { NavBar } from './shared/nav-bar/nav-bar';
 import { PageHeader } from './shared/page-header/page-header';
 import { AuthService } from './services/auth.service';
+import { AccountService } from './services/account.service';
 import { EmployeeService } from './services/employee.service';
 
 @Component({
@@ -25,6 +26,7 @@ import { EmployeeService } from './services/employee.service';
 export class App {
   private readonly router = inject(Router);
   private readonly _authService = inject(AuthService);
+  private readonly _accountService = inject(AccountService);
   private readonly _employeeService = inject(EmployeeService);
 
   readonly currentEmployee = this._employeeService.currentEmployee;
@@ -62,16 +64,21 @@ export class App {
         map((session) => session?.identifier ?? null),
         distinctUntilChanged(),
         switchMap((identifier) => {
-          this._authService.clearAccount();
+          this._accountService.clearAccount();
           this._employeeService.clearCurrentEmployee();
           if (identifier === null) {
             if (this.router.url !== '/') {
-              this.router.navigate(['/'], { replaceUrl: true });
+              // Conserva el aviso si la pantalla de cuenta ya inició la vuelta al login.
+              const message = this.router.currentNavigation()?.extras.state?.['accountUpdateMessage'];
+              this.router.navigate(['/'], {
+                replaceUrl: true,
+                state: typeof message === 'string' ? { accountUpdateMessage: message } : undefined,
+              });
             }
             return EMPTY;
           }
 
-          const account$ = this._authService.loadEmail().pipe(
+          const account$ = this._accountService.loadAccount().pipe(
             catchError((err) => {
               console.log('No se pudo cargar el email de la cuenta.', err);
               return EMPTY;

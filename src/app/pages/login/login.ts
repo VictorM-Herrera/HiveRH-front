@@ -18,6 +18,9 @@ export class Login {
   private readonly _router = inject(Router);
   private readonly _fb = inject(NonNullableFormBuilder);
   readonly error = signal<string | null>(null);
+  readonly accountUpdateMessage = signal<string | null>(
+    this._router.currentNavigation()?.extras.state?.['accountUpdateMessage'] ?? null,
+  );
   readonly isLoading = signal<boolean>(false);
 
   readonly loginForm = this._fb.group({
@@ -30,6 +33,7 @@ export class Login {
       return;
     }
 
+    this.accountUpdateMessage.set(null);
     this.error.set(null);
     this.isLoading.set(true);
 

@@ -3,6 +3,10 @@
   --sidebar-open: 252px;
 }
 
+img {
+  user-select: none;
+}
+
 .sidebar {
   position: fixed;
   z-index: 900;
