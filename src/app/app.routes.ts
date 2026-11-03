@@ -34,5 +34,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
     title: 'Perfil de empleado',
   },
+  {
+    path: 'employee-list',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/employee-list/employee-list').then(m => m.EmployeeList)
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
