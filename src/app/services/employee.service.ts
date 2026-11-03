@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { Employee } from '../models/employee/employee.model';
+import { EmployeeUpdate } from '../models/employee/employee-update.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -15,6 +16,27 @@ export class EmployeeService {
 
   readonly currentEmployee = this._currentEmployee.asReadonly();
   readonly profilePicture = this._profilePicture.asReadonly();
+
+  getEmployee(dni: string): Observable<Employee> {
+    return this.http.get<Employee>(`${this.baseUrl}/api/employees/${dni}`);
+  }
+
+  updateEmployee(dni: string, data: EmployeeUpdate): Observable<Employee> {
+    return this.http.patch<Employee>(`${this.baseUrl}/api/employees/${dni}`, data).pipe(
+      tap((employee) => {
+        if (this._currentEmployee()?.dni === dni) this._currentEmployee.set(employee);
+      }),
+    );
+  }
+
+  updateProfilePicture(dni: string, file: File): Observable<string | null> {
+    const data = new FormData();
+    data.append('dni', dni);
+    data.append('file', file);
+    return this.http
+      .patch(`${this.baseUrl}/api/employees/picture`, data)
+      .pipe(switchMap(() => this.loadProfilePicture(dni)));
+  }
 
   loadCurrentEmployee(): Observable<Employee | null> {
     return this.getMe().pipe(
@@ -39,14 +61,14 @@ export class EmployeeService {
   private getMe(): Observable<Employee> {
     return this.http.get<Employee>(`${this.baseUrl}/api/employees/me`);
   }
-  private getProfilePicture(dni: string): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/api/employees/pictures/${dni}`, {
+  getProfilePicture(dni: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/api/employees/picture/${dni}`, {
       responseType: 'blob',
     });
   }
   loadProfilePicture(dni: string): Observable<string | null> {
     return this.getProfilePicture(dni).pipe(
-      map((blob) => URL.createObjectURL(blob)),
+      map((blob) => (blob.size ? URL.createObjectURL(blob) : null)),
       tap((url) => {
         this.clearProfilePicture();
         this._profilePicture.set(url);

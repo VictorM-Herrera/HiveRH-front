@@ -35,7 +35,7 @@ export class NavBar {
     { id: 'sun', label: 'Mis vacaciones', icon: 'sun', route: '/my-vacations' },
     { id: 'file', label: 'Mis licencias', icon: 'file' },
     { id: 'clock', label: 'Mi horario', icon: 'clock' },
-    { id: 'profile', label: 'Mi Perfil', icon: 'profile-white' },
+    { id: 'profile', label: 'Mi Perfil', icon: 'profile-white', route: '/profile' },
   ];
   readonly navigationItemsStaff: readonly NavigationItem[] = [
     { id: 'people', label: 'Empleados', icon: 'people'},

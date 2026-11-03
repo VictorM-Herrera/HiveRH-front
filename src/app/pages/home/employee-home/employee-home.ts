@@ -65,6 +65,7 @@ export class EmployeeHome {
     },
     {
       id: 'profile',
+      route: '/profile',
       label: 'Mi perfil',
       description: 'Mis datos personales',
       icon: 'icons/navigation/profile.svg',

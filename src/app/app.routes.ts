@@ -22,5 +22,17 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/my-vacations/my-vacations').then((m) => m.MyVacations),
     title: 'Mis vacaciones',
   },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
+    title: 'Mi perfil',
+  },
+  {
+    path: 'profile/:dni',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
+    title: 'Perfil de empleado',
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
