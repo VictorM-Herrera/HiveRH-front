@@ -1,0 +1,250 @@
+<section class="vacations-page">
+  <header class="page-heading">
+    <p class="eyebrow">MI ESPACIO</p>
+    <h1>Mis licencias</h1>
+  </header>
+
+  <div class="vacations-grid">
+    <form class="vacation-card request-form" [formGroup]="form" (ngSubmit)="submit()">
+      <header class="card-heading">
+        <h2>Solicitar licencia</h2>
+        <p>Indicá el período y el motivo de tu solicitud.</p>
+      </header>
+
+      <div class="date-fields">
+        <div class="form-field">
+          <label for="license-start">Desde</label>
+          <input id="license-start" type="date" formControlName="startDate" />
+        </div>
+        <div class="form-field">
+          <label for="license-end">Hasta</label>
+          <input
+            id="license-end"
+            type="date"
+            formControlName="endDate"
+            [min]="form.controls.startDate.value"
+          />
+        </div>
+      </div>
+      @if (form.touched && form.hasError('dateOrder')) {
+        <p class="field-error">La fecha de fin no puede ser anterior a la de inicio.</p>
+      }
+      @if (selectedPeriod(); as period) {
+        <div class="period-summary">
+          <img src="icons/icon-calendar.svg" alt="" draggable="false" />
+          <div>
+            <strong
+              >{{ period.days }} {{ period.days === 1 ? 'día corrido' : 'días corridos' }}</strong
+            >
+            <p>{{ period.label }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="form-field motive-field">
+        <label for="license-motive">Motivo</label>
+        <textarea
+          id="license-motive"
+          formControlName="motive"
+          rows="3"
+          maxlength="100"
+          placeholder="Escribí el motivo de la licencia"
+        ></textarea>
+        <small>{{ form.controls.motive.value.length }} / 100</small>
+      </div>
+
+      <section class="certificate-field">
+        <div class="certificate-heading">
+          <h3>Certificados</h3>
+          <span>{{ certificateCount() }} / {{ maxCertificates }}</span>
+        </div>
+        <input
+          #certificateInput
+          type="file"
+          accept=".pdf,application/pdf"
+          multiple
+          hidden
+          (change)="addCertificates(certificateInput)"
+        />
+        <button
+          type="button"
+          class="attach-button"
+          [disabled]="isSubmitting() || certificateCount() >= maxCertificates"
+          (click)="certificateInput.click()"
+        >
+          <img src="icons/navigation/file.svg" alt="" draggable="false" />
+          <span><strong>Adjuntar PDF</strong><small>Hasta 5 MB por archivo</small></span>
+        </button>
+        @if (files().length) {
+          <ul class="attached-files">
+            @for (file of files(); track $index; let index = $index) {
+              <li>
+                <span [title]="file.name">{{ file.name }}</span>
+                <button
+                  type="button"
+                  title="Quitar archivo"
+                  [disabled]="isSubmitting()"
+                  (click)="removeCertificate(index)"
+                >
+                  <img src="icons/icon-close.svg" alt="Quitar archivo" draggable="false" />
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <footer class="request-actions">
+        @if (licenseId() !== null) {
+          <p>La solicitud ya está registrada. Podés reintentar la carga de los PDF pendientes.</p>
+        }
+        <button
+          type="submit"
+          class="submit-request"
+          [disabled]="
+            isSubmitting() ||
+            isLoadingLicenses() ||
+            (licenseId() === null ? form.invalid : !files().length)
+          "
+        >
+          {{ licenseId() === null ? 'Enviar solicitud' : 'Subir certificados pendientes' }}
+          <img src="icons/icon-arrow-right.svg" alt="" draggable="false" />
+        </button>
+        @if (licenseId() !== null) {
+          <button
+            type="button"
+            class="new-request"
+            [disabled]="isSubmitting()"
+            (click)="resetForm()"
+          >
+            Descartar adjuntos pendientes
+          </button>
+        }
+      </footer>
+    </form>
+
+    <section class="vacation-card requests-card">
+      <header class="card-heading">
+        <h2>Mis solicitudes</h2>
+        <p>Consultá el estado de tus licencias y sus certificados.</p>
+      </header>
+
+      <div class="status-filters">
+        @for (filter of statusFilters; track filter.value) {
+          <button
+            type="button"
+            class="filter-chip"
+            [class.is-active]="status() === filter.value"
+            [class.chip-pending]="filter.value === 'PENDING'"
+            [class.chip-approved]="filter.value === 'APPROVED'"
+            [class.chip-rejected]="filter.value === 'REJECTED'"
+            [disabled]="isLoadingLicenses() || isSubmitting()"
+            (click)="selectStatus(filter.value)"
+          >
+            {{ filter.label }}
+          </button>
+        }
+      </div>
+
+      <div class="requests-list license-list">
+        @for (license of licenses(); track license.id) {
+          <article class="vacation-row license-row">
+            <div class="vacation-copy">
+              <h3>{{ formatPeriod(license.startDate, license.endDate) }}</h3>
+              <p>{{ license.motive }}</p>
+              <p>Solicitada el {{ formatDate(license.requestDate) }}</p>
+              @if (license.reviewedByAccountId !== null) {
+                <p>{{ license.isPaid ? 'Paga' : 'No paga' }}</p>
+              }
+              @if (license.reviewComment) {
+                <p class="review-comment">{{ license.reviewComment }}</p>
+              }
+              @if (license.idCertificates.length) {
+                <div class="certificate-links">
+                  @for (id of license.idCertificates; track id; let index = $index) {
+                    <button
+                      type="button"
+                      [disabled]="isSubmitting() || isDownloading()"
+                      (click)="downloadCertificate(id)"
+                    >
+                      Certificado {{ index + 1 }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            <span class="status-badge" [class]="'status-' + license.status.toLowerCase()">
+              {{ statusLabels[license.status] }}
+            </span>
+          </article>
+        } @empty {
+          @if (!isLoadingLicenses()) {
+            <div class="empty-requests">
+              <img src="icons/navigation/requests.svg" alt="" draggable="false" />
+              @if (licensesPage()) {
+                <h3>No hay solicitudes para mostrar</h3>
+                <p>Las licencias que envíes aparecerán acá.</p>
+              } @else {
+                <h3>No pudimos cargar tus solicitudes</h3>
+                <button type="button" (click)="loadLicenses(page())">Reintentar</button>
+              }
+            </div>
+          }
+        }
+      </div>
+      @if (licensesPage(); as response) {
+        <footer class="pagination">
+          <small
+            >Mostrando {{ response.element.length }} de
+            {{ response.totalElements }} solicitudes</small
+          >
+          <div class="page-controls">
+            <button
+              type="button"
+              [disabled]="response.page === 0 || isLoadingLicenses() || isSubmitting()"
+              (click)="loadLicenses(response.page - 1)"
+            >
+              Anterior
+            </button>
+            <span>{{
+              response.totalPages ? response.page + 1 + ' / ' + response.totalPages : '0 / 0'
+            }}</span>
+            <button
+              type="button"
+              [disabled]="
+                response.page + 1 >= response.totalPages || isLoadingLicenses() || isSubmitting()
+              "
+              (click)="loadLicenses(response.page + 1)"
+            >
+              Siguiente
+            </button>
+          </div>
+        </footer>
+      }
+    </section>
+  </div>
+
+  <aside class="vacation-note">
+    <img src="icons/icon-calendar.svg" alt="" draggable="false" />
+    <p>
+      Podés solicitar una licencia para fechas pasadas. Revisá que la fecha de fin sea igual o
+      posterior a la de inicio.
+    </p>
+  </aside>
+</section>
+
+@if (isLoadingLicenses()) {
+  <app-loading-circle message="Cargando licencias..." />
+} @else if (isSubmitting() || isDownloading()) {
+  <app-loading-circle
+    [message]="isDownloading() ? 'Descargando certificado...' : 'Procesando solicitud...'"
+  />
+}
+@if (toast(); as notification) {
+  <app-toast
+    [message]="notification.message"
+    [type]="notification.type"
+    [title]="notification.title"
+    (dismissed)="toast.set(null)"
+  />
+}

@@ -33,7 +33,7 @@ export class NavBar {
 
   readonly navigationItems: readonly NavigationItem[] = [
     { id: 'sun', label: 'Mis vacaciones', icon: 'sun', route: '/my-vacations' },
-    { id: 'file', label: 'Mis licencias', icon: 'file' },
+    { id: 'file', label: 'Mis licencias', icon: 'file', route: '/my-licenses' },
     { id: 'clock', label: 'Mi horario', icon: 'clock' },
     { id: 'profile', label: 'Mi Perfil', icon: 'profile-white', route: '/profile' },
   ];

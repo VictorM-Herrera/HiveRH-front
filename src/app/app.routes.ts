@@ -23,6 +23,12 @@ export const routes: Routes = [
     title: 'Mis vacaciones',
   },
   {
+    path: 'my-licenses',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/my-licenses/my-licenses').then((m) => m.MyLicenses),
+    title: 'Mis licencias',
+  },
+  {
     path: 'profile',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
