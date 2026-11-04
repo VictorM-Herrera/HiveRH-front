@@ -2,7 +2,20 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { CsrfService } from './csrf.service';
-import { catchError, defer, finalize, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import {
+  catchError,
+  defer,
+  finalize,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+  switchMap,
+  takeUntil,
+  tap,
+  throwError,
+} from 'rxjs';
 import { AuthResponse, AuthSession, loginDTO } from '../models/auth.models';
 
 @Injectable({
@@ -15,6 +28,8 @@ export class AuthService {
 
   private readonly _accessToken = signal<string | null>(null);
   private readonly _session = signal<AuthSession | null>(null);
+  private readonly sessionEnded = new Subject<void>();
+  private refreshRequest$: Observable<AuthResponse> | null = null;
 
   readonly accessToken = this._accessToken.asReadonly();
   readonly session = this._session.asReadonly();
@@ -24,28 +39,43 @@ export class AuthService {
   login(data: loginDTO): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.url}/api/auth/login`, data, this.getAuthOptions())
-      .pipe(tap((response) => this.setSession(response)));
+      .pipe(
+        tap((response) => {
+          this.sessionEnded.next();
+          this.setSession(response);
+        }),
+      );
   }
 
   refresh(): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.url}/api/auth/refresh`, {}, this.getAuthOptions())
-      .pipe(
+    if (!this.refreshRequest$) {
+      this.refreshRequest$ = defer(() =>
+        this.http.post<AuthResponse>(`${this.url}/api/auth/refresh`, {}, this.getAuthOptions()),
+      ).pipe(
+        takeUntil(this.sessionEnded),
         tap((response) => this.setSession(response)),
         catchError((error: unknown) => {
-          if (error instanceof HttpErrorResponse && error.status === 401) {
+          if (
+            error instanceof HttpErrorResponse &&
+            (error.status === 401 || error.status === 403)
+          ) {
             this.clearSession();
           }
 
           return throwError(() => error);
         }),
+        finalize(() => (this.refreshRequest$ = null)),
+        shareReplay({ bufferSize: 1, refCount: false }),
       );
+    }
+    return this.refreshRequest$;
   }
 
   logout(): Observable<void> {
-    return defer(() =>
-      this.http.post<void>(`${this.url}/api/auth/logout`, {}, this.getAuthOptions()),
-    ).pipe(finalize(() => this.clearSession()));
+    return defer(() => {
+      this.sessionEnded.next();
+      return this.http.post<void>(`${this.url}/api/auth/logout`, {}, this.getAuthOptions());
+    }).pipe(finalize(() => this.clearSession()));
   }
 
   private setSession(response: AuthResponse): void {
@@ -68,7 +98,8 @@ export class AuthService {
     );
   }
 
-  private clearSession(): void {
+  clearSession(): void {
+    this.sessionEnded.next();
     this._accessToken.set(null);
     this._session.set(null);
   }

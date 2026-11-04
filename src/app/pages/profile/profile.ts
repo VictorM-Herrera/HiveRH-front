@@ -8,7 +8,7 @@ import { ToastComponent, ToastType } from '../../components/toast/toast';
 import { Employee } from '../../models/employee/employee.model';
 import { AuthService } from '../../services/auth.service';
 import { EmployeeService } from '../../services/employee.service';
-import { EmployeeEdit } from './employee-edit/employee-edit';
+import { EmployeeEdit } from '../employee-edit/employee-edit';
 
 @Component({
   selector: 'app-profile',

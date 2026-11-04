@@ -2,10 +2,10 @@ import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@a
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { LoadingCircleComponent } from '../../../components/loading-circle/loading-circle';
-import { ToastComponent } from '../../../components/toast/toast';
-import { Employee, EmployeeGenre, EmployeeStatus } from '../../../models/employee/employee.model';
-import { EmployeeService } from '../../../services/employee.service';
+import { LoadingCircleComponent } from '../../components/loading-circle/loading-circle';
+import { ToastComponent } from '../../components/toast/toast';
+import { Employee, EmployeeGenre, EmployeeStatus } from '../../models/employee/employee.model';
+import { EmployeeService } from '../../services/employee.service';
 
 @Component({
   selector: 'app-employee-edit',
