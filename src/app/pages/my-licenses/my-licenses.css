@@ -1,0 +1,172 @@
+.motive-field,
+.certificate-field {
+  margin-top: 18px;
+}
+
+.motive-field textarea {
+  width: 100%;
+  min-height: 76px;
+  resize: vertical;
+  border: 1px solid var(--hive-line);
+  border-radius: 10px;
+  background: var(--hive-surface);
+  padding: 10px 12px;
+  color: var(--hive-ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.motive-field textarea:focus {
+  outline: 2px solid rgb(244 183 63 / 30%);
+  border-color: var(--hive-honey-hover);
+}
+
+.motive-field small,
+.certificate-heading span,
+.attach-button small {
+  color: var(--hive-muted);
+  font-size: 10px;
+}
+
+.motive-field small {
+  text-align: right;
+}
+
+.certificate-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.certificate-heading h3 {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.attach-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  border: 1px dashed var(--hive-line);
+  border-radius: 10px;
+  background: var(--hive-canvas);
+  padding: 12px 14px;
+  color: var(--hive-green);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.attach-button:hover:not(:disabled) {
+  border-color: var(--hive-green);
+  background: var(--hive-sage);
+}
+
+.attach-button img {
+  width: 21px;
+  height: 21px;
+  filter: brightness(0) saturate(100%);
+  opacity: 0.65;
+}
+
+.attach-button small {
+  display: block;
+  margin-top: 4px;
+}
+
+.attached-files {
+  display: grid;
+  max-height: 126px;
+  gap: 4px;
+  margin-top: 9px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.attached-files li {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: 8px;
+  background: var(--hive-canvas);
+  padding: 5px 9px;
+  font-size: 11px;
+}
+
+.attached-files span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attached-files button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.attached-files button:hover {
+  background: var(--hive-line);
+}
+
+.attached-files img {
+  width: 13px;
+  height: 13px;
+}
+
+.request-actions {
+  padding-top: 20px;
+}
+
+.request-actions > p {
+  margin-block: 0 10px;
+}
+
+.new-request,
+.certificate-links button {
+  border: 0;
+  background: transparent;
+  color: var(--hive-green);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.new-request {
+  display: block;
+  margin: 12px auto 0;
+  padding: 5px;
+}
+
+.license-list {
+  margin-top: 14px;
+}
+
+.license-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.certificate-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.certificate-links button {
+  border-radius: 6px;
+  background: var(--hive-sage);
+  padding: 4px 7px;
+  font-size: 10px;
+}
