@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { catchError, map, Observable, of } from 'rxjs';
 import { ToastComponent } from '../../../components/toast/toast';
 import { PageResponse } from '../../../models/page-response.models';
@@ -19,6 +19,7 @@ const pendingPage = { status: 'PENDING', page: 0, size: 1 } as const;
 })
 export class StaffHome {
   private readonly employeeService = inject(EmployeeService);
+  private readonly router = inject(Router);
 
   readonly employeeName = computed(() => this.employeeService.currentEmployee()?.name ?? '');
   readonly pendingVacations = this.readTotal(inject(VacationService).getVacations(pendingPage));
@@ -45,6 +46,7 @@ export class StaffHome {
       label: 'Licencias',
       description: this.pendingDescription(this.pendingLicenses()),
       icon: 'icons/navigation/file.svg',
+      route: '/team-licenses',
     },
     {
       id: 'employees',
@@ -78,6 +80,10 @@ export class StaffHome {
   readonly notice = signal<string | null>(null);
 
   openManagement(item: HiveCarouselItem): void {
+    if (item.route) {
+      this.router.navigate([item.route]);
+      return;
+    }
     this.notice.set(`La sección «${item.label}» estará disponible próximamente.`);
   }
 
