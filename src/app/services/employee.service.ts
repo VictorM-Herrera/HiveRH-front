@@ -29,6 +29,9 @@ export class EmployeeService {
       params: this.buildParams(filters),
     }).pipe(tap(res => this._employeePage.set(res)));
   }
+  getCountEMployees(){
+    return this.http.get<PageResponse<Employee>>(this.baseUrl+"/api/employees");
+  }
 
   updateEmployee(dni: string, data: EmployeeUpdate): Observable<Employee> {
     return this.http.patch<Employee>(`${this.baseUrl}/api/employees/${dni}`, data).pipe(

@@ -6,18 +6,40 @@
         <h1>Lista de empleados.</h1>
       </header>
 
+      <br>
+
       <article class="filter">
-        <input type="text" name="" id="">
-        <button>search</button>
+        <form [formGroup]="filterForm" (ngSubmit)="filtrar()">
+          <input type="text" name="filter" formControlName="filter">
+          <button type="submit">search</button>
+        </form>
       </article>
+
+      <br>
 
       <div class="employee-container">
         <header>
             <strong>Empleados</strong>
-            <small>5 en total</small>
+            <small>{{employeeCount()}} empleados en total</small>
         </header>
+
+        <br>
+
         <div class="employee-list">
-            <div class="li-empleado">empledo --- nombre --- algo</div>
+          <strong>LISTA DE EMPLEADOS</strong>
+            @if(employees()){
+              @for(employee of employees(); track employee.dni){
+                <!-- CREAR CARD DE EMPLEADO -->
+                <div>
+                  <small>{{employee.dni}}</small>
+                  <small>{{employee.name}}</small>
+                </div>
+              }
+            }
+            <button (click)="beginPege()"> << </button>
+            <button (click)="previousPage()"> < </button>
+            <button (click)="nextPage()"> > </button>
+            <button (click)="lastPage()"> >> </button>
         </div>
       </div> 
 
