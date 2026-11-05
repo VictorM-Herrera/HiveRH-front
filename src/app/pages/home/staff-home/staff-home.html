@@ -1,11 +1,54 @@
-<section class="role-placeholder">
-  
-  
+<header class="welcome">
+  <p class="eyebrow">GESTIÓN DE PERSONAS</p>
+  <h1>Hola{{ employeeName() ? ', ' + employeeName() : '' }}.</h1>
+</header>
 
+<div class="summary-grid">
+  <section class="summary-card">
+    <p class="summary-label">Por revisar</p>
+    <h2>{{ pendingTotal() ?? '—' }} {{ pendingTotal() === 1 ? 'solicitud' : 'solicitudes' }}</h2>
+    <p class="summary-detail">
+      Vacaciones <strong>{{ pendingVacations() ?? '—' }}</strong>
+      · Licencias <strong>{{ pendingLicenses() ?? '—' }}</strong>
+    </p>
+    @if (pendingVacations() === null || pendingLicenses() === null) {
+      <p class="summary-detail">No pudimos cargar todos los totales.</p>
+    }
+  </section>
 
+  <section class="summary-card">
+    <p class="summary-label">Equipo</p>
+    <h2>{{ activeEmployees() ?? '—' }} {{ activeEmployees() === 1 ? 'persona' : 'personas' }}</h2>
+    <p class="summary-detail">
+      {{ activeEmployees() === null ? 'No pudimos cargar el total.' : 'Empleados activos' }}
+    </p>
+  </section>
+</div>
 
-
-
-
-
+<section class="hive-section">
+  <header class="section-heading">
+    <h2>Gestión del equipo</h2>
+  </header>
+  <app-hive-carousel [items]="managementItems()" (itemSelected)="openManagement($event)" />
 </section>
+
+<section class="personal-section">
+  <header class="section-heading">
+    <h2>Mi espacio</h2>
+  </header>
+  <div class="personal-links">
+    @for (item of personalItems; track item.route) {
+      <a class="personal-link" [routerLink]="item.route">
+        <span class="personal-icon"><img [src]="item.icon" alt="" /></span>
+        <span class="personal-copy">
+          <strong>{{ item.label }}</strong>
+          <small>{{ item.description }}</small>
+        </span>
+      </a>
+    }
+  </div>
+</section>
+
+@if (notice(); as message) {
+  <app-toast type="info" title="Próximamente" [message]="message" (dismissed)="notice.set(null)" />
+}

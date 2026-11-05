@@ -14,6 +14,19 @@ export interface License extends LicenseRequest {
   reviewedByAccountId: number | null;
   reviewComment: string | null;
   idCertificates: number[];
+  dniEmployee: string;
+}
+
+export interface LicenseReviewRequest {
+  status: Extract<License['status'], 'APPROVED' | 'REJECTED'>;
+  isPaid: boolean;
+  reviewComment?: string | null;
+}
+
+export interface CertificateInfo {
+  description: string;
+  uploadDate: string;
+  idLicense: number;
 }
 
 export interface MyLicenseFilters {
@@ -24,4 +37,8 @@ export interface MyLicenseFilters {
   page?: number;
   size?: number;
   sort?: string;
+}
+
+export interface LicenseFilters extends MyLicenseFilters {
+  dniEmployee?: string;
 }
