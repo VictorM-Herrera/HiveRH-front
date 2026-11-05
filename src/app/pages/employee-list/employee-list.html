@@ -1,46 +1,56 @@
- <section class="role-placeholder">
-     
-     <!-- mensaje de bienvenida -->
-      <header class="welcome">
-        <p class="sub-text">GESTION DE EQUIPO</p>
-        <h1>Lista de empleados.</h1>
+<section class="role-placeholder">
+
+  <!-- mensaje de bienvenida -->
+  <header class="welcome">
+    <p class="sub-text">GESTION DE EQUIPO</p>
+    <h1>Lista de empleados.</h1>
+  </header>
+
+  <br>
+
+  <article class="filter">
+    <form [formGroup]="filterForm" (ngSubmit)="filtrar()">
+      <input type="text" name="filter" formControlName="filter">
+      <button type="submit">search</button>
+    </form>
+  </article>
+
+  <br>
+
+  
+    <header>
+      <strong>Empleados</strong>
+      <small>{{employeeCount()}} empleados en total</small>
+    </header>
+
+    <br>
+
+    <div class="employee-container">
+      <header>
+        <h2>LISTA DE EMPLEADOS</h2>
       </header>
 
-      <br>
-
-      <article class="filter">
-        <form [formGroup]="filterForm" (ngSubmit)="filtrar()">
-          <input type="text" name="filter" formControlName="filter">
-          <button type="submit">search</button>
-        </form>
-      </article>
-
-      <br>
-
-      <div class="employee-container">
-        <header>
-            <strong>Empleados</strong>
-            <small>{{employeeCount()}} empleados en total</small>
-        </header>
-
-        <br>
-
-        <div class="employee-list">
-          <strong>LISTA DE EMPLEADOS</strong>
-            @if(employees()){
-              @for(employee of employees(); track employee.dni){
-                <!-- CREAR CARD DE EMPLEADO -->
-                <div>
-                  <small>{{employee.dni}}</small>
-                  <small>{{employee.name}}</small>
-                </div>
-              }
-            }
-            <button (click)="beginPege()"> << </button>
-            <button (click)="previousPage()"> < </button>
-            <button (click)="nextPage()"> > </button>
-            <button (click)="lastPage()"> >> </button>
+      <div class="employee-list">
+        @if(employees()){
+        @for(employee of employees(); track employee.dni){
+        <!-- CREAR CARD DE EMPLEADO -->
+        <div class="employee-card">
+          <small>{{employee.name}} {{employee.lastName}}</small>
+          <small>{{employee.dni}}</small>
+          <small>{{employee.status}}</small>
         </div>
-      </div> 
+        }
+        }
+      </div>
+      <div class="employee-nav">
+        <button (click)="beginPege()">
+          << </button>
+            <button (click)="previousPage()">
+              < </button>
+                <button (click)="nextPage()"> > </button>
+                <button (click)="lastPage()"> >> </button>
+      </div>
+    </div>
+  
 
- </section>
+</section>

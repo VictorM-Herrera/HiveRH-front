@@ -1,0 +1,36 @@
+.employee-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    background-color: black;
+    width: 400px;
+    box-sizing: border-box;
+}
+.employee-container header {
+    display: flex;
+    justify-content: center;
+}
+.employee-list{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.employee-card{
+    display: flex;
+    gap: 1rem;
+   background-color: brown;
+   color: white; 
+}
+.employee-nav{
+    background-color: transparent;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+.employee-nav button{
+    width: 50px;
+    height: 40px;
+}
