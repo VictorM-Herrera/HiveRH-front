@@ -1,8 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { EmployeeFilter } from '../models/employee/employee-filter.model';
 import { Employee } from '../models/employee/employee.model';
 import { EmployeeUpdate } from '../models/employee/employee-update.model';
+import { PageResponse } from '../models/page-response.models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -16,6 +18,16 @@ export class EmployeeService {
 
   readonly currentEmployee = this._currentEmployee.asReadonly();
   readonly profilePicture = this._profilePicture.asReadonly();
+
+  getEmployees(filters: EmployeeFilter = {}): Observable<PageResponse<Employee>> {
+    let params = new HttpParams().set('page', filters.page ?? 0).set('size', filters.size ?? 20);
+    for (const [name, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== '') {
+        params = params.set(name, value);
+      }
+    }
+    return this.http.get<PageResponse<Employee>>(`${this.baseUrl}/api/employees`, { params });
+  }
 
   getEmployee(dni: string): Observable<Employee> {
     return this.http.get<Employee>(`${this.baseUrl}/api/employees/${dni}`);

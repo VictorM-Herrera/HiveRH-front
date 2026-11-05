@@ -19,6 +19,8 @@ export interface VacationRequest {
   endDate: string;
   dniEmployee: string;
   requestDate?: string;
+  status?: VacationStatus;
+  reviewComment?: string | null;
 }
 export interface VacationFilters {
   status?: string;
