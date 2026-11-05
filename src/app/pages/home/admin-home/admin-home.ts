@@ -8,13 +8,13 @@ import { Position } from '../../../models/position';
 import { PositionService } from '../../../services/position.service';
 import { HiveCarousel, HiveCarouselItem } from '../../../shared/hive-carousel/hive-carousel';
 import { routes } from '../../../app.routes';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin-home',
   templateUrl: './admin-home.html',
   styleUrls: ['./admin-home.css', '../employee-home/employee-home.css'],
-  imports: [HiveCarousel],
+  imports: [HiveCarousel, RouterLink],
 })
 export class AdminHome {
   readonly auth = inject(AuthService)
@@ -86,5 +86,9 @@ export class AdminHome {
       this.router.navigate([item.route]);
       return;
     }
+  }
+
+  navigate(path:string){
+    this.router.navigate([path]);  
   }
 }
