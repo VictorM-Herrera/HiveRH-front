@@ -1,0 +1,176 @@
+:host {
+  display: block;
+}
+
+.hive-stage {
+  position: relative;
+  height: 260px;
+  max-width: 800px;
+  margin: 6px auto 0;
+  overflow: hidden;
+}
+
+.hive-card {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 248px;
+  aspect-ratio: 186 / 162;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--hive-ink);
+  cursor: pointer;
+  filter: drop-shadow(0 8px 10px rgb(37 45 39 / 6%));
+  transition: transform 300ms ease, opacity 300ms ease;
+}
+
+.hive-card.is-active {
+  z-index: 3;
+  transform: translate(-50%, -50%);
+}
+
+.hive-card.is-previous {
+  opacity: 0.75;
+  transform: translate(calc(-50% - 200px), -50%) scale(0.82);
+}
+
+.hive-card.is-next {
+  opacity: 0.75;
+  transform: translate(calc(-50% + 200px), -50%) scale(0.82);
+}
+
+.hive-card.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.65);
+}
+
+.hive-card:focus-visible {
+  outline: none;
+  filter: drop-shadow(0 0 5px var(--hive-honey-hover));
+}
+
+.hive-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hive-copy {
+  position: relative;
+  display: flex;
+  width: 75%;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+}
+
+.hive-icon {
+  width: 25px;
+  height: 25px;
+  margin-bottom: 3px;
+  filter: brightness(0) saturate(100%);
+  opacity: 0.82;
+}
+
+.hive-copy strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hive-copy small {
+  color: var(--hive-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.hive-card.is-active small {
+  color: #755b25;
+}
+
+.carousel-controls,
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-controls {
+  gap: 20px;
+}
+
+.carousel-arrow {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--hive-line);
+  border-radius: 50%;
+  background: var(--hive-surface);
+  cursor: pointer;
+}
+
+.carousel-arrow:hover {
+  background: var(--hive-sage);
+}
+
+.carousel-arrow img {
+  width: 15px;
+  height: 15px;
+  filter: brightness(0) saturate(100%);
+  opacity: 0.65;
+}
+
+.previous img {
+  rotate: 180deg;
+}
+
+.carousel-dots {
+  gap: 9px;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: #d5dad0;
+  cursor: pointer;
+}
+
+.carousel-dot.is-active {
+  width: 22px;
+  border-radius: 10px;
+  background: var(--hive-honey);
+}
+
+@media (max-width: 600px) {
+  .hive-stage {
+    height: 230px;
+    margin-inline: -12px;
+  }
+
+  .hive-card {
+    width: 218px;
+  }
+
+  .hive-card.is-previous {
+    opacity: 0.55;
+    transform: translate(calc(-50% - 130px), -50%) scale(0.72);
+  }
+
+  .hive-card.is-next {
+    opacity: 0.55;
+    transform: translate(calc(-50% + 130px), -50%) scale(0.72);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hive-card {
+    transition: none;
+  }
+}

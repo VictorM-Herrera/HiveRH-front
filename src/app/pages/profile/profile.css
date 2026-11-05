@@ -1,0 +1,229 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+img {
+  user-select: none;
+}
+.profile-page {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding: 34px clamp(20px, 3vw, 40px) 44px;
+}
+.eyebrow {
+  color: var(--hive-green);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.page-heading h1 {
+  margin-top: 7px;
+  font-size: clamp(28px, 3vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+.page-heading > p:last-child {
+  margin-top: 8px;
+  color: var(--hive-muted);
+  font-size: 13px;
+}
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 26px;
+  border: 1px solid var(--hive-line);
+  border-top: 4px solid var(--hive-honey);
+  border-radius: 18px;
+  background: var(--hive-surface);
+  padding: 26px 28px;
+}
+.avatar-area {
+  flex: 0 0 auto;
+  text-align: center;
+}
+.profile-avatar {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  margin-inline: auto;
+  overflow: hidden;
+  border: 4px solid var(--hive-sage);
+  border-radius: 50%;
+  background: var(--hive-canvas);
+}
+.profile-avatar > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar-area > small {
+  display: block;
+  margin-top: 9px;
+  color: var(--hive-muted);
+  font-size: 9px;
+}
+.change-photo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  background: rgb(39 59 48 / 70%);
+  color: white;
+  font: inherit;
+  font-size: 10px;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 160ms ease;
+}
+.change-photo img {
+  width: 21px;
+  height: 21px;
+  filter: brightness(0) invert(1);
+}
+.profile-avatar:hover .change-photo,
+.change-photo:focus-visible {
+  opacity: 1;
+}
+.profile-intro {
+  min-width: 0;
+  flex: 1;
+}
+.identity-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.employee-label {
+  color: var(--hive-muted);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  background: var(--hive-sage);
+  padding: 4px 9px;
+  color: var(--hive-green);
+  font-size: 10px;
+}
+.status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-badge.is-terminated {
+  background: #fbeaea;
+  color: #b04444;
+}
+.profile-intro h2 {
+  margin-top: 9px;
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.position-name {
+  margin-top: 5px;
+  color: var(--hive-green);
+  font-size: 13px;
+  font-weight: 600;
+}
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 14px;
+  color: var(--hive-muted);
+  font-size: 11px;
+}
+.edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 10px;
+  background: var(--hive-honey);
+  padding: 12px 16px;
+  color: var(--hive-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.edit-button:hover {
+  background: var(--hive-honey-hover);
+}
+.edit-button img {
+  width: 16px;
+  height: 16px;
+}
+.empty-profile {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  margin-top: 26px;
+  padding-block: 48px;
+  text-align: center;
+}
+.empty-profile > img {
+  width: 32px;
+  height: 32px;
+}
+.empty-profile h2 {
+  font-size: 17px;
+}
+.empty-profile p {
+  color: var(--hive-muted);
+  font-size: 12px;
+}
+@media (max-width: 1000px) {
+  .profile-hero {
+    flex-wrap: wrap;
+  }
+  .edit-button {
+    margin-left: auto;
+  }
+}
+@media (max-width: 520px) {
+  .profile-hero {
+    justify-content: center;
+    gap: 18px;
+    padding: 22px 18px;
+  }
+  .profile-intro {
+    flex-basis: 100%;
+    text-align: center;
+  }
+  .identity-line,
+  .profile-meta {
+    justify-content: center;
+  }
+  .edit-button {
+    width: 100%;
+    margin: 0;
+  }
+}
+@media (hover: none) {
+  .change-photo {
+    justify-content: end;
+    padding-bottom: 12px;
+    background: linear-gradient(transparent 30%, rgb(39 59 48 / 75%));
+    opacity: 1;
+  }
+  .change-photo img {
+    width: 17px;
+    height: 17px;
+  }
+}

@@ -1,0 +1,138 @@
+.details-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+.detail-card {
+  min-width: 0;
+  border: 1px solid var(--hive-line);
+  border-radius: 16px;
+  background: var(--hive-surface);
+  padding: 24px;
+}
+.card-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 22px;
+}
+.card-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--hive-sage);
+}
+.card-icon img {
+  width: 19px;
+  height: 19px;
+  filter: brightness(0) saturate(100%);
+  opacity: 0.65;
+}
+.card-heading h2 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.card-heading p {
+  margin-top: 4px;
+  color: var(--hive-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 21px 18px;
+}
+.data-grid dt {
+  margin-bottom: 6px;
+  color: var(--hive-muted);
+  font-size: 11px;
+}
+.data-grid dd {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.salary-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 24px;
+  border-radius: 10px;
+  background: #fff5dc;
+  padding: 14px 16px;
+}
+.salary-summary span {
+  color: #826c3e;
+  font-size: 11px;
+}
+.salary-summary strong {
+  font-size: 18px;
+  letter-spacing: -0.025em;
+}
+.assignments-card {
+  margin-top: 20px;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+th {
+  padding: 0 12px 12px;
+  color: var(--hive-muted);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+td {
+  border-top: 1px solid var(--hive-line);
+  padding: 15px 12px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+td:nth-child(4),
+td:nth-child(5) {
+  white-space: nowrap;
+}
+.assignment-badge {
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--hive-canvas);
+  padding: 4px 9px;
+  color: var(--hive-muted);
+  font-size: 10px;
+}
+.assignment-badge.is-current {
+  background: var(--hive-sage);
+  color: var(--hive-green);
+}
+.empty-assignments {
+  color: var(--hive-muted);
+  font-size: 12px;
+  padding-block: 12px;
+}
+
+@media (max-width: 800px) {
+  .details-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .detail-card {
+    padding: 20px;
+  }
+  .data-grid {
+    gap: 18px 12px;
+  }
+}

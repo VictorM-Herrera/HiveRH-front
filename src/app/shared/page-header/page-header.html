@@ -1,0 +1,14 @@
+<section style="display: flex; justify-content: center;">
+  <header class="page-header">
+    <div class="breadcrumb">
+      <a routerLink="/home">Mi espacio</a>
+      <span class="breadcrumb-separator">/</span>
+      <span class="current-page">{{ pageTitle() }}</span>
+    </div>
+  
+    <div class="header-details">
+      <span class="current-date">{{ currentDate }}</span>
+      <span class="role-badge">{{ userRole() }}</span>
+    </div>
+  </header>
+</section>

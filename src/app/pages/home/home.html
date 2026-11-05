@@ -1,1 +1,20 @@
-<p>home works!</p>
+<div class="home-page">
+  @switch (homeRole()) {
+    @case ('ADMIN') {
+      <app-admin-home />
+    }
+    @case ('STAFF') {
+      <app-staff-home />
+    }
+    @case ('EMPLOYEE') {
+      <app-employee-home [requests]="requests()" />
+    }
+  }
+</div>
+
+@if (isLoading()) {
+  <app-loading-circle message="Cargando tus solicitudes..." />
+}
+@if (error(); as message) {
+  <app-toast [message]="message" (dismissed)="error.set(null)" />
+}

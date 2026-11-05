@@ -1,0 +1,226 @@
+<section class="vacations-page">
+  <header class="page-heading">
+    <p class="eyebrow">MI ESPACIO</p>
+    <h1>Mis vacaciones</h1>
+  </header>
+
+  <div class="vacations-grid">
+    <form
+      class="vacation-card request-form"
+      [formGroup]="vacationForm"
+      (ngSubmit)="submitVacation()"
+    >
+      <header class="card-heading">
+        <h2>Solicitar vacaciones</h2>
+        <p>Elegí el período de tu próximo descanso.</p>
+      </header>
+
+      <div class="date-fields">
+        <div class="form-field">
+          <label for="vacation-start">Desde</label>
+          <input id="vacation-start" type="date" formControlName="startDate" [min]="minStartDate" />
+        </div>
+        <div class="form-field">
+          <label for="vacation-end">Hasta</label>
+          <input
+            id="vacation-end"
+            type="date"
+            formControlName="endDate"
+            [min]="vacationForm.controls.startDate.value || minStartDate"
+          />
+        </div>
+      </div>
+
+      @if (vacationForm.touched && vacationForm.hasError('dateOrder')) {
+        <p class="field-error">La fecha de fin no puede ser anterior a la de inicio.</p>
+      }
+      @if (vacationForm.touched && vacationForm.hasError('noticePeriod')) {
+        <p class="field-error">El período debe comenzar desde el {{ formatDate(minStartDate) }}.</p>
+      }
+      @if (
+        vacationForm.touched &&
+        (vacationForm.controls.startDate.hasError('required') ||
+          vacationForm.controls.endDate.hasError('required'))
+      ) {
+        <p class="field-error">Completá las dos fechas para continuar.</p>
+      }
+
+      <div class="period-summary">
+        <img src="icons/navigation/sun.svg" alt="" />
+        <div>
+          @if (selectedPeriod(); as period) {
+            <strong
+              >{{ period.days }} {{ period.days === 1 ? 'día corrido' : 'días corridos' }}</strong
+            >
+            <p>{{ period.label }}</p>
+          } @else {
+            <strong>Tu próximo descanso</strong>
+            <p>Seleccioná las fechas para ver el período.</p>
+          }
+        </div>
+      </div>
+
+      <footer class="request-actions">
+        <button
+          type="submit"
+          class="submit-request"
+          [disabled]="vacationForm.invalid || isSubmitting() || isLoading() || !employee()"
+        >
+          Enviar solicitud
+          <img src="icons/icon-arrow-right.svg" alt="" />
+        </button>
+        <p>Podés revisar todas tus solicitudes desde esta misma pantalla.</p>
+      </footer>
+    </form>
+
+    <section class="vacation-card requests-card">
+      <header class="card-heading">
+        <h2>Mis solicitudes</h2>
+      </header>
+
+      <div class="status-filters">
+        @for (filter of statusFilters; track filter.value) {
+          <button
+            type="button"
+            class="filter-chip"
+            [class.is-active]="status() === filter.value"
+            [class.chip-pending]="filter.value === 'PENDING'"
+            [class.chip-approved]="filter.value === 'APPROVED'"
+            [class.chip-rejected]="filter.value === 'REJECTED'"
+            [disabled]="isSubmitting()"
+            (click)="selectStatus(filter.value)"
+          >
+            {{ filter.label }}
+          </button>
+        }
+      </div>
+
+      <form class="range-filters" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+        <div class="form-field">
+          <label for="filter-start">Desde</label>
+          <input id="filter-start" type="date" formControlName="startDate" />
+        </div>
+        <div class="form-field">
+          <label for="filter-end">Hasta</label>
+          <input
+            id="filter-end"
+            type="date"
+            formControlName="endDate"
+            [min]="filterForm.controls.startDate.value"
+          />
+        </div>
+        <button
+          type="submit"
+          class="apply-filters"
+          [disabled]="filterForm.invalid || isSubmitting()"
+        >
+          Filtrar
+        </button>
+      </form>
+      <div class="filter-tools">
+        @if (filterForm.touched && filterForm.hasError('dateOrder')) {
+          <p class="field-error">Revisá el orden de las fechas.</p>
+        }
+        <button type="button" [disabled]="isSubmitting()" (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      </div>
+
+      <div class="requests-list">
+        @for (vacation of vacations(); track vacation.idVacation) {
+          <article class="vacation-row">
+            <div class="vacation-copy">
+              <h3>{{ formatPeriod(vacation.startDate, vacation.endDate) }}</h3>
+              <p>
+                Solicitada el {{ formatDate(vacation.requestDate) }} ·
+                {{ periodDays(vacation.startDate, vacation.endDate) }} días
+              </p>
+              @if (vacation.reviewComment) {
+                <p class="review-comment">{{ vacation.reviewComment }}</p>
+              }
+            </div>
+            <span class="status-badge" [class]="'status-' + vacation.status.toLowerCase()">{{
+              statusLabels[vacation.status] || vacation.status
+            }}</span>
+            <span class="row-action">
+              @if (vacation.status === 'PENDING') {
+                <button
+                  type="button"
+                  class="delete-request"
+                  title="Eliminar solicitud"
+                  [disabled]="isSubmitting()"
+                  (click)="deleteVacation(vacation.idVacation)"
+                >
+                  <img src="icons/icon-trash.svg" alt="" draggable="false" />
+                </button>
+              }
+            </span>
+          </article>
+        } @empty {
+          @if (!isLoading()) {
+            <div class="empty-requests">
+              <img src="icons/navigation/requests.svg" alt="" />
+              @if (loadFailed()) {
+                <h3>No pudimos cargar tus solicitudes</h3>
+                <button type="button" (click)="loadVacations()">Reintentar</button>
+              } @else {
+                <h3>No hay solicitudes para mostrar</h3>
+                <p>Si aplicaste filtros, probá con otro estado o período.</p>
+              }
+            </div>
+          }
+        }
+      </div>
+
+      <footer class="pagination">
+        @if (vacationsPage(); as response) {
+          <small
+            >Mostrando {{ response.element.length }} de
+            {{ response.totalElements }} solicitudes</small
+          >
+          <div class="page-controls">
+            <button
+              type="button"
+              [disabled]="page() === 0 || isLoading() || isSubmitting()"
+              (click)="previousPage()"
+            >
+              Anterior
+            </button>
+            <span>{{
+              response.totalPages ? page() + 1 + ' / ' + response.totalPages : '0 / 0'
+            }}</span>
+            <button
+              type="button"
+              [disabled]="page() + 1 >= response.totalPages || isLoading() || isSubmitting()"
+              (click)="nextPage()"
+            >
+              Siguiente
+            </button>
+          </div>
+        }
+      </footer>
+    </section>
+  </div>
+
+  <aside class="vacation-note">
+    <img src="icons/icon-calendar.svg" alt="" />
+    <p>
+      Pedí tus vacaciones con al menos 5 días hábiles de anticipación y revisá que los períodos no
+      se superpongan.
+    </p>
+  </aside>
+</section>
+
+@if (isLoading() || isSubmitting()) {
+  <app-loading-circle
+    [message]="isSubmitting() ? 'Procesando solicitud...' : 'Cargando tus vacaciones...'"
+  />
+}
+@if (toast(); as notification) {
+  <app-toast
+    [message]="notification.message"
+    [type]="notification.type"
+    [title]="notification.title"
+    (dismissed)="toast.set(null)"
+  />
+}
