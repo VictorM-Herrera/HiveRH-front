@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
-import { authGuard } from './guards/auth.guard';
+import { authGuard, staffGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Login, title: 'Login' },
@@ -27,6 +27,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./pages/my-licenses/my-licenses').then((m) => m.MyLicenses),
     title: 'Mis licencias',
+  },
+  {
+    path: 'team-licenses',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () => import('./pages/team-licenses/team-licenses').then((m) => m.TeamLicenses),
+    title: 'Licencias del equipo',
   },
   {
     path: 'profile',

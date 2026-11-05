@@ -1,0 +1,254 @@
+<div class="team-page">
+  <header class="page-intro">
+    <p class="eyebrow">Gestión del equipo</p>
+    <h1>Licencias del equipo</h1>
+  </header>
+
+  <form class="panel filters" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <fieldset [disabled]="isSaving()">
+      <label>
+        DNI del empleado
+        <input
+          formControlName="dniEmployee"
+          type="search"
+          inputmode="numeric"
+          placeholder="Ej. 40111222"
+        />
+      </label>
+      <label>
+        Estado
+        <select formControlName="status">
+          <option value="">Todas</option>
+          <option value="PENDING">Pendientes</option>
+          <option value="APPROVED">Aprobadas</option>
+          <option value="REJECTED">Rechazadas</option>
+          <option value="CANCELLED">Canceladas</option>
+        </select>
+      </label>
+      <label>
+        Desde
+        <input formControlName="startDate" type="date" />
+      </label>
+      <label>
+        Hasta
+        <input formControlName="endDate" type="date" />
+      </label>
+      <label>
+        Tipo de pago
+        <select formControlName="payment">
+          <option value="">Todos</option>
+          <option value="paid">Pagas</option>
+          <option value="unpaid">No pagas</option>
+        </select>
+      </label>
+      <label>
+        Orden
+        <select formControlName="sort">
+          <option value="requestDate,desc">Más recientes</option>
+          <option value="requestDate,asc">Más antiguas</option>
+          <option value="startDate,asc">Inicio más temprano</option>
+          <option value="startDate,desc">Inicio más tardío</option>
+        </select>
+      </label>
+      <div class="filter-actions">
+        <button type="submit" class="button primary" [disabled]="filterForm.invalid">
+          Filtrar
+        </button>
+        <button type="button" class="button" (click)="resetFilters()">Restablecer</button>
+      </div>
+    </fieldset>
+    @if (filterForm.hasError('dateOrder')) {
+      <p class="field-error">La fecha «Hasta» debe ser igual o posterior a «Desde».</p>
+    }
+  </form>
+
+  <div class="workspace">
+    <section class="panel requests">
+      <header class="list-header">
+        <h2>Solicitudes de licencia</h2>
+        @if (page(); as current) {
+          <span class="muted">{{ current.totalElements }} en total</span>
+        }
+      </header>
+
+      @if (page(); as current) {
+        <ul class="request-list">
+          @for (license of current.element; track license.id) {
+            @let employee = employeeByDni().get(license.dniEmployee);
+            <li>
+              <button
+                type="button"
+                class="request"
+                [class.selected]="license.id === selectedRow()?.id"
+                [attr.aria-pressed]="license.id === selectedRow()?.id"
+                [disabled]="isSaving()"
+                (click)="selectLicense(license.id)"
+              >
+                <span class="avatar" aria-hidden="true">
+                  @if (employee) {
+                    {{ employee.name.charAt(0) }}{{ employee.lastName.charAt(0) }}
+                  } @else {
+                    <img src="icons/navigation/file.svg" alt="" draggable="false" />
+                  }
+                </span>
+                <span class="row-copy">
+                  <strong>{{
+                    employee
+                      ? employee.name + ' ' + employee.lastName
+                      : 'DNI ' + license.dniEmployee
+                  }}</strong>
+                  <small>{{ formatPeriod(license.startDate, license.endDate) }}</small>
+                </span>
+                <span class="badge" [attr.data-status]="license.status">{{
+                  statusLabels[license.status]
+                }}</span>
+              </button>
+            </li>
+          } @empty {
+            <li class="empty">No encontramos licencias con estos filtros.</li>
+          }
+        </ul>
+        @if (current.totalPages > 1) {
+          <nav class="pagination" aria-label="Páginas de licencias">
+            <button
+              type="button"
+              class="button"
+              [disabled]="isSaving() || current.page === 0"
+              (click)="loadPage(current.page - 1)"
+            >
+              Anterior
+            </button>
+            <span class="muted">{{ current.page + 1 }} de {{ current.totalPages }}</span>
+            <button
+              type="button"
+              class="button"
+              [disabled]="isSaving() || current.page + 1 >= current.totalPages"
+              (click)="loadPage(current.page + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
+        }
+      } @else if (listResult() === 'error') {
+        <p class="empty">No pudimos cargar las licencias.</p>
+        <button type="button" class="button" (click)="loadPage(0)">Reintentar</button>
+      } @else {
+        <p class="empty" role="status">Cargando licencias…</p>
+      }
+    </section>
+
+    <section class="panel detail" aria-label="Solicitud seleccionada">
+      <p class="eyebrow">Solicitud seleccionada</p>
+      @if (selectedLicense(); as license) {
+        @let employee = employeeByDni().get(license.dniEmployee);
+        <header>
+          <h2>
+            {{ employee ? employee.name + ' ' + employee.lastName : 'Licencia #' + license.id }}
+          </h2>
+          <p class="muted">DNI {{ license.dniEmployee }}</p>
+        </header>
+
+        <div class="period">
+          <strong>{{ formatPeriod(license.startDate, license.endDate) }}</strong>
+          <p class="muted">
+            {{ periodDays(license.startDate, license.endDate) }}
+            {{ license.startDate === license.endDate ? 'día corrido' : 'días corridos' }}
+            · Solicitada el {{ formatDate(license.requestDate) }}
+          </p>
+        </div>
+        <div class="detail-status">
+          <span class="muted">Estado actual</span>
+          <span class="badge" [attr.data-status]="license.status">{{
+            statusLabels[license.status]
+          }}</span>
+          @if (license.status !== 'PENDING') {
+            <span class="muted">{{ license.isPaid ? 'Paga' : 'No paga' }}</span>
+          }
+        </div>
+        <div class="detail-block">
+          <h3>Motivo</h3>
+          <p>{{ license.motive }}</p>
+        </div>
+        <div class="detail-block">
+          <h3>Certificados asociados</h3>
+          <div class="certificates">
+            <span class="muted">Cantidad de certificados: {{ license.idCertificates.length }}</span>
+            <button
+              type="button"
+              class="button"
+              [disabled]="isDownloading() || !license.idCertificates.length"
+              (click)="downloadCertificates(license)"
+            >
+              {{ isDownloading() ? 'Descargando…' : 'Descargar certificados' }}
+            </button>
+          </div>
+        </div>
+
+        @if (license.status === 'PENDING') {
+          <form class="review" [formGroup]="reviewForm" (ngSubmit)="review('APPROVED')">
+            <fieldset [disabled]="isSaving()">
+              <label>
+                Pago al aprobar
+                <select formControlName="payment">
+                  <option value="">Seleccioná una opción</option>
+                  <option value="paid">Licencia paga</option>
+                  <option value="unpaid">Licencia no paga</option>
+                </select>
+              </label>
+              @if (reviewForm.controls.payment.touched && !reviewForm.controls.payment.value) {
+                <p class="field-error">Indicá si la licencia es paga para aprobarla.</p>
+              }
+              <label>
+                Comentario de revisión <span class="muted">(opcional)</span>
+                <textarea
+                  formControlName="comment"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Agregá un comentario para quien hizo la solicitud"
+                ></textarea>
+              </label>
+              <div class="review-actions">
+                <button type="submit" class="button primary" [disabled]="reviewForm.invalid">
+                  {{ isSaving() ? 'Guardando…' : 'Aprobar' }}
+                </button>
+                <button
+                  type="button"
+                  class="button reject"
+                  [disabled]="reviewForm.invalid"
+                  (click)="review('REJECTED')"
+                >
+                  Rechazar
+                </button>
+              </div>
+            </fieldset>
+          </form>
+        } @else if (license.reviewComment) {
+          <div class="detail-block">
+            <h3>Comentario de revisión</h3>
+            <p>{{ license.reviewComment }}</p>
+          </div>
+        }
+      } @else if (selectedRow()) {
+        @if (detailResult() === 'error') {
+          <p class="empty">No pudimos cargar el detalle de la licencia.</p>
+          <button type="button" class="button" (click)="loadPage(page()?.page ?? 0)">
+            Reintentar
+          </button>
+        } @else {
+          <p class="empty" role="status">Cargando solicitud…</p>
+        }
+      } @else {
+        <p class="empty">Seleccioná una licencia para ver su detalle.</p>
+      }
+    </section>
+  </div>
+</div>
+
+@if (toast(); as message) {
+  <app-toast
+    [type]="message.type"
+    [title]="message.title"
+    [message]="message.message"
+    (dismissed)="toast.set(null)"
+  />
+}
