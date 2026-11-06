@@ -62,7 +62,6 @@
     
 
     constructor(){
-      // Carga de branches
       if(this._branches().length === 0) {
         this.branchService.getBranches().subscribe({
           next: branchArr => {
@@ -73,7 +72,6 @@
         })
       }  
       
-      // Carga de departments
       if(this._departments().length === 0){ this.departmentService.getDepartments().subscribe({
         next: deps => {
           console.log(deps)
@@ -86,7 +84,6 @@
         error: err => console.log("Error al cargar departamentos", err)
       }) }
 
-      // Carga posiciones
       if(this._positions().length === 0) this.positionService.getPositions().subscribe({
         next: pos => {    
           this._positions.set(pos)
