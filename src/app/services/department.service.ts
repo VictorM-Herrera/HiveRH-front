@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import { Department } from '../models/department';
 import { DepartmentFilter } from '../models/department-filter';
 import { PageResponse } from '../models/page-response.models';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,8 @@ export class DepartmentService {
   private readonly url = environment.baseUrl + "/api/departments";
 
 
-  getDepartments(filters: DepartmentFilter = {}) {
-    return this.http.get<PageResponse<Department>>(this.url, {
+  getDepartments(filters: DepartmentFilter = {}): Observable<Department[]> {
+    return this.http.get<Department[]>(this.url, {
       params: this.buildParams(filters)
     });
   }

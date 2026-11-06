@@ -13,7 +13,8 @@ import { DepartmentFilter } from '../../models/department-filter';
 })
 export class AdminDepartment {
   private readonly departmentService = inject(DepartmentService);
-  private readonly _departments = signal<PageResponse<Department> | null>(null);
+  private readonly _departments = signal<Department[]>([]);
+  readonly departments = this._departments.asReadonly();
 
 
   formDepartment = new FormGroup({

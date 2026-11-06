@@ -1,0 +1,22 @@
+<p>admin-positions works!</p>
+
+<div>
+    <strong>Total de posiciones = {{position().length}}</strong>
+    <div>
+        <h2>Posiciones</h2>
+        @for(p of position(); track p.id_position){
+        <strong>{{p.name}}</strong>
+        <small>{{p.active}}</small>
+        <small>{{p.id_position}}</small>
+        }
+    </div>
+</div>
+
+
+<form [formGroup]="form" (ngSubmit)="createPosition()">
+    <label for="name">
+        Nombre de la posicion:
+        <input type="text" formControlName="createForm">
+    </label>
+    <button type="submit">Crear posicion</button>
+</form>

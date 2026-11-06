@@ -14,4 +14,7 @@ export class PositionService {
   getPositions(){
     return this.http.get<Position[]>(this.url);
   }
+  postPosition(name:string){
+    return this.http.post<Position>(this.url, name);
+  }
 }
