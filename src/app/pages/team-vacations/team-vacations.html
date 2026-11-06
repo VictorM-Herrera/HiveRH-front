@@ -1,0 +1,188 @@
+<div class="team-page">
+  <header class="page-intro">
+    <p class="eyebrow">Gestión del equipo</p>
+    <h1>Vacaciones del equipo</h1>
+    <p class="muted intro-copy">
+      Revisá los períodos solicitados y ayudá a organizar el próximo descanso.
+    </p>
+  </header>
+
+  <form class="panel filters" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <fieldset [disabled]="isSaving()">
+      <label class="search-filter">
+        Empleado
+        <input formControlName="search" type="search" placeholder="Buscar por nombre o DNI" />
+      </label>
+      <label>
+        Estado
+        <select formControlName="status">
+          <option value="">Todas</option>
+          <option value="PENDING">Pendientes</option>
+          <option value="APPROVED">Aprobadas</option>
+          <option value="REJECTED">Rechazadas</option>
+          <option value="CANCELLED">Canceladas</option>
+        </select>
+      </label>
+      <label>
+        Desde
+        <input formControlName="startDate" type="date" />
+      </label>
+      <label>
+        Hasta
+        <input formControlName="endDate" type="date" />
+      </label>
+      <div class="filter-actions">
+        <button type="submit" class="button primary" [disabled]="filterForm.invalid">
+          Filtrar
+        </button>
+        <button type="button" class="button" (click)="resetFilters()">Restablecer</button>
+      </div>
+    </fieldset>
+    @if (filterForm.hasError('dateOrder')) {
+      <p class="field-error">La fecha «Hasta» debe ser igual o posterior a «Desde».</p>
+    }
+  </form>
+
+  <div class="workspace">
+    <section class="panel requests">
+      <header class="list-header">
+        <h2>Solicitudes de vacaciones</h2>
+        @if (page(); as current) {
+          <span class="muted">{{ current.totalElements }} en total</span>
+        }
+      </header>
+
+      @if (page(); as current) {
+        <ul class="request-list">
+          @for (vacation of current.element; track vacation.idVacation) {
+            @let days = periodDays(vacation.startDate, vacation.endDate);
+            @let selected = vacation.idVacation === selectedVacation()?.idVacation;
+            <li>
+              <button
+                type="button"
+                class="request"
+                [class.selected]="selected"
+                [attr.aria-pressed]="selected"
+                [disabled]="isSaving()"
+                (click)="selectVacation(vacation.idVacation)"
+              >
+                <span class="avatar" aria-hidden="true">{{ initials(vacation.employeeName) }}</span>
+                <span class="row-copy">
+                  <strong>{{ vacation.employeeName }}</strong>
+                  <small>
+                    {{ formatPeriod(vacation.startDate, vacation.endDate) }} · {{ days }}
+                    {{ days === 1 ? 'día' : 'días' }}
+                  </small>
+                </span>
+                <span class="badge" [attr.data-status]="vacation.status">
+                  {{ statusLabels[vacation.status] }}
+                </span>
+              </button>
+            </li>
+          } @empty {
+            <li class="empty">No encontramos solicitudes con estos filtros.</li>
+          }
+        </ul>
+        @if (current.totalPages > 1) {
+          <nav class="pagination" aria-label="Páginas de vacaciones">
+            <button
+              type="button"
+              class="button"
+              [disabled]="isSaving() || current.page === 0"
+              (click)="loadPage(current.page - 1)"
+            >
+              Anterior
+            </button>
+            <span class="muted">{{ current.page + 1 }} de {{ current.totalPages }}</span>
+            <button
+              type="button"
+              class="button"
+              [disabled]="isSaving() || current.page + 1 >= current.totalPages"
+              (click)="loadPage(current.page + 1)"
+            >
+              Siguiente
+            </button>
+          </nav>
+        }
+      } @else if (listResult() === 'error') {
+        <p class="empty">No pudimos cargar las solicitudes de vacaciones.</p>
+        <button type="button" class="button retry" (click)="loadPage()">Reintentar</button>
+      } @else {
+        <p class="empty" role="status">Cargando vacaciones…</p>
+      }
+    </section>
+
+    <section class="panel detail" aria-label="Solicitud seleccionada">
+      <p class="eyebrow">Solicitud seleccionada</p>
+      @if (selectedVacation(); as vacation) {
+        @let days = periodDays(vacation.startDate, vacation.endDate);
+        <header>
+          <h2>{{ vacation.employeeName }}</h2>
+          <p class="muted">DNI {{ vacation.dniEmployee }}</p>
+        </header>
+
+        <div class="period">
+          <strong>{{ formatPeriod(vacation.startDate, vacation.endDate) }}</strong>
+          <p class="muted">
+            {{ days }} {{ days === 1 ? 'día corrido' : 'días corridos' }} · Solicitada el
+            {{ formatDate(vacation.requestDate) }}
+          </p>
+        </div>
+        <div class="detail-status">
+          <span class="muted">Estado actual</span>
+          <span class="badge" [attr.data-status]="vacation.status">
+            {{ statusLabels[vacation.status] }}
+          </span>
+        </div>
+
+        @if (vacation.status === 'PENDING') {
+          <form class="review" [formGroup]="reviewForm" (ngSubmit)="review('APPROVED')">
+            <fieldset [disabled]="isSaving()">
+              <label>
+                Comentario de revisión <span class="muted">(opcional)</span>
+                <textarea
+                  formControlName="comment"
+                  rows="4"
+                  maxlength="500"
+                  placeholder="Agregá un comentario para quien hizo la solicitud"
+                ></textarea>
+              </label>
+              <div class="review-actions">
+                <button type="submit" class="button primary" [disabled]="reviewForm.invalid">
+                  {{ isSaving() ? 'Guardando…' : 'Aprobar' }}
+                </button>
+                <button
+                  type="button"
+                  class="button reject"
+                  [disabled]="reviewForm.invalid"
+                  (click)="review('REJECTED')"
+                >
+                  Rechazar
+                </button>
+              </div>
+            </fieldset>
+          </form>
+          <p class="muted review-note">
+            La persona podrá consultar la decisión y tu comentario desde su espacio.
+          </p>
+        } @else if (vacation.reviewComment) {
+          <div class="detail-block">
+            <h3>Comentario de revisión</h3>
+            <p>{{ vacation.reviewComment }}</p>
+          </div>
+        }
+      } @else {
+        <p class="empty">Seleccioná una solicitud para ver su detalle.</p>
+      }
+    </section>
+  </div>
+</div>
+
+@if (toast(); as message) {
+  <app-toast
+    [type]="message.type"
+    [title]="message.title"
+    [message]="message.message"
+    (dismissed)="toast.set(null)"
+  />
+}

@@ -39,7 +39,7 @@ export class NavBar {
   ];
   readonly navigationItemsStaff: readonly NavigationItem[] = [
     { id: 'people', label: 'Empleados', icon: 'people', route: '/employee-list' },
-    { id: 'calendar', label: 'Vacaciones', icon: 'calendar' },
+    { id: 'calendar', label: 'Vacaciones', icon: 'calendar', route: '/team-vacations' },
     { id: 'file', label: 'Licencias', icon: 'file', route: '/team-licenses' },
     // { id: 'clock', label: 'Horarios', icon: 'clock' },
     

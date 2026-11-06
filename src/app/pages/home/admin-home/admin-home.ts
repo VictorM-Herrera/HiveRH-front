@@ -59,7 +59,7 @@ export class AdminHome {
   
 
   constructor(){
-    // Carga de branches
+
     if(this._branches().length === 0) {
       this.branchService.getBranches().subscribe({
         next: branchArr => this._branches.set(branchArr),
@@ -67,13 +67,13 @@ export class AdminHome {
       })
     }  
     
-    // Carga de departments
+   
     if(this._departments().length === 0){ this.departmentService.getDepartments().subscribe({
       next: deps => this._departments.set(deps),
       error: err => console.log("Error al cargar departamentos", err)
     }) }
 
-    // Carga departamentos
+  
     if(this._positions().length === 0) this.positionService.getPositions().subscribe({
       next: pos => this._positions.set(pos),
       error: err => console.log("Error al cargar puestos", err)

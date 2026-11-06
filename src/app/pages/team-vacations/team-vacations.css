@@ -1,0 +1,22 @@
+.intro-copy {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.search-filter {
+  grid-column: span 3;
+}
+
+.retry {
+  align-self: flex-start;
+}
+
+.review-note {
+  margin-top: 12px;
+}
+
+@media (max-width: 500px) {
+  .search-filter {
+    grid-column: 1 / -1;
+  }
+}
