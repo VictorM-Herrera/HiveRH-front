@@ -42,18 +42,16 @@ export class AdminPositions {
       })
   }
 
-
-  //si hay muchos items, esto no sirve (a usos practicos)
-  update(){
-    this.positionService.getPositions().subscribe({
-      next: data => this._positions.set(data)
-    })
-  }
-
   patchPosition(id:number, status:boolean){    
     this.positionService.patchPosition(id, !status).subscribe({
-      next: data => {
-        this.update()
+      next: newPosition => {
+        this._positions.update(lista => 
+          lista.map(position =>
+            position.id_position === newPosition.id_position
+            ? newPosition
+            : position
+          )
+        )
       },
       error: err => console.log("error en el patch", err)
     })

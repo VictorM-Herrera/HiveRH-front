@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { BranchService } from '../../services/branch.service';
 import { Branch } from '../../models/branch';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-admin-branches',
@@ -55,14 +56,22 @@ export class AdminBranches {
       active: true
     }
     this.branchService.postBranch(branch).subscribe({
-      next: data => console.log("Ok", data),
+      next: data => {
+        console.log("Ok", data)
+        this._branches.update(branches => [...branches, data])
+      },
       error: err => console.log("Error post Branch", err)
     })
   }
 
   deleteBranch(id:number){
     this.branchService.deleteBranch(id).subscribe({
-      next: data => console.log("Ok", data),
+      next: data => {
+        this._branches.update(branches => 
+          branches.filter(branch => branch.id_branch != id)
+        )
+
+      },
       error: err => console.log("Error delete Branch", err)
     })
   }
