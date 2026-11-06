@@ -1,56 +1,165 @@
-<section class="role-placeholder">
-
-  <!-- mensaje de bienvenida -->
-  <header class="welcome">
-    <p class="sub-text">GESTION DE EQUIPO</p>
-    <h1>Lista de empleados.</h1>
+<div class="team-page">
+  <header>
+    <p class="eyebrow">Gestión del equipo</p>
+    <h1>Lista de empleados</h1>
   </header>
 
-  <br>
+  <form class="panel filters" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+    <div class="filter-grid">
+      <label>
+        Nombre o apellido
+        <input type="search" formControlName="fullName" placeholder="Ej. Juana Lovelace" />
+      </label>
+      <label>
+        DNI
+        <input type="search" formControlName="dni" inputmode="numeric" placeholder="Ej. 40111222" />
+      </label>
+      <label>
+        Estado
+        <select formControlName="status">
+          <option value="">Todos</option>
+          <option value="ACTIVE">Activos</option>
+          <option value="TERMINATED">De baja</option>
+        </select>
+      </label>
+      <label>
+        Sucursal
+        <select formControlName="id_branch">
+          <option [ngValue]="null">Todas</option>
+          @for (branch of branches() ?? []; track branch.id_branch) {
+            <option [ngValue]="branch.id_branch">{{ branch.name }} · {{ branch.city }}</option>
+          }
+        </select>
+        @if (branches() === null) {
+          <small>No pudimos cargar las sucursales.</small>
+        }
+      </label>
+    </div>
 
-  <article class="filter">
-    <form [formGroup]="filterForm" (ngSubmit)="filtrar()">
-      <input type="text" name="filter" formControlName="filter">
-      <button type="submit">search</button>
-    </form>
-  </article>
+    <details class="more-filters">
+      <summary>Más filtros</summary>
+      <div class="filter-grid">
+        <label>
+          Departamento
+          <select formControlName="department">
+            <option value="">Todos</option>
+            @for (department of departments() ?? []; track department.id_department) {
+              <option [value]="department.name">{{ department.name }}</option>
+            }
+          </select>
+          @if (departments() === null) {
+            <small>No pudimos cargar los departamentos.</small>
+          }
+        </label>
+        <label>
+          Puesto
+          <select formControlName="position">
+            <option value="">Todos</option>
+            @for (position of positions() ?? []; track position.id_position) {
+              <option [value]="position.name">{{ position.name }}</option>
+            }
+          </select>
+          @if (positions() === null) {
+            <small>No pudimos cargar los puestos.</small>
+          }
+        </label>
+        <label>
+          Fecha de ingreso
+          <input type="date" formControlName="hire_date" />
+        </label>
+        <label>
+          Fecha de baja
+          <input type="date" formControlName="termination_date" />
+        </label>
+        <label>
+          Salario mínimo
+          <input type="number" min="0" step="any" formControlName="min_salary" />
+        </label>
+        <label>
+          Salario máximo
+          <input type="number" min="0" step="any" formControlName="max_salary" />
+        </label>
+      </div>
+      @if (filterForm.hasError('salaryRange')) {
+        <p class="field-error">El salario máximo debe ser igual o mayor al mínimo.</p>
+      } @else if (
+        filterForm.controls.min_salary.invalid || filterForm.controls.max_salary.invalid
+      ) {
+        <p class="field-error">Ingresá salarios iguales o mayores a cero.</p>
+      }
+    </details>
 
-  <br>
+    <div class="filter-actions">
+      <button type="button" class="button" (click)="resetFilters()">Restablecer</button>
+      <button type="submit" class="button primary" [disabled]="filterForm.invalid">Filtrar</button>
+    </div>
+  </form>
 
-  
-    <header>
-      <strong>Empleados</strong>
-      <small>{{employeeCount()}} empleados en total</small>
+  <section class="panel requests">
+    @let result = listResult();
+    <header class="list-header">
+      <h2>Empleados</h2>
+      @if (result && result !== 'error') {
+        <span class="muted">{{ result.totalElements }} en total</span>
+      }
     </header>
 
-    <br>
-
-    <div class="employee-container">
-      <header>
-        <h2>LISTA DE EMPLEADOS</h2>
-      </header>
-
-      <div class="employee-list">
-        @if(employees()){
-        @for(employee of employees(); track employee.dni){
-        <!-- CREAR CARD DE EMPLEADO -->
-        <div class="employee-card">
-          <small>{{employee.name}} {{employee.lastName}}</small>
-          <small>{{employee.dni}}</small>
-          <small>{{employee.status}}</small>
-        </div>
+    @if (result === 'error') {
+      <p class="empty">No pudimos cargar los empleados.</p>
+      <button type="button" class="button retry" (click)="loadPage()">Reintentar</button>
+    } @else if (result) {
+      <ul class="request-list">
+        @for (employee of result.element; track employee.dni) {
+          @let assignment = employee.assignments.find(isActiveAssignment);
+          <li>
+            <a class="request employee-row" [routerLink]="['/profile', employee.dni]">
+              <span class="avatar" aria-hidden="true">
+                {{ employee.name.charAt(0) }}{{ employee.lastName.charAt(0) }}
+              </span>
+              <span class="row-copy">
+                <strong>{{ employee.name }} {{ employee.lastName }}</strong>
+                <small>DNI {{ employee.dni }}</small>
+              </span>
+              @if (assignment) {
+                <span class="row-copy assignment">
+                  <strong>{{ assignment.positionName }}</strong>
+                  <small>{{ assignment.departmentName }} · {{ assignment.branchName }}</small>
+                </span>
+              }
+              <span class="badge" [attr.data-status]="employee.status">
+                {{ employee.status === 'ACTIVE' ? 'Activo' : 'De baja' }}
+              </span>
+              <img class="profile-arrow" src="icons/icon-chevron-right.svg" alt="" />
+            </a>
+          </li>
+        } @empty {
+          <li class="empty">No encontramos empleados con estos filtros.</li>
         }
-        }
-      </div>
-      <div class="employee-nav">
-        <button (click)="beginPege()">
-          << </button>
-            <button (click)="previousPage()">
-              < </button>
-                <button (click)="nextPage()"> > </button>
-                <button (click)="lastPage()"> >> </button>
-      </div>
-    </div>
-  
+      </ul>
 
-</section>
+      @if (result.totalPages > 1) {
+        <nav class="pagination" aria-label="Páginas de empleados">
+          <button
+            type="button"
+            class="button"
+            [disabled]="result.page === 0"
+            (click)="loadPage(result.page - 1)"
+          >
+            Anterior
+          </button>
+          <span class="muted">{{ result.page + 1 }} de {{ result.totalPages }}</span>
+          <button
+            type="button"
+            class="button"
+            [disabled]="result.page + 1 >= result.totalPages"
+            (click)="loadPage(result.page + 1)"
+          >
+            Siguiente
+          </button>
+        </nav>
+      }
+    } @else {
+      <p class="empty" role="status">Cargando empleados…</p>
+    }
+  </section>
+</div>
