@@ -24,15 +24,7 @@ export class AdminPositions {
       nonNullable: true
     })
   })
-
-  createPosition() {
-    this.positionService.postPosition(this.form.getRawValue().createForm)
-      .subscribe({
-        next: data => console.log("OK", data),
-        error: err => console.log("error al crear position", err)
-      })
-  }
-
+  
   constructor() {
     if (this._positions.length === 0) {
       this.positionService.getPositions().subscribe({
@@ -41,6 +33,15 @@ export class AdminPositions {
       })
     }
   }
+
+  createPosition() {
+    this.positionService.postPosition(this.form.getRawValue().createForm)
+      .subscribe({
+        next: data => this._positions.update(positions => [...positions, data]),
+        error: err => console.log("error al crear position", err)
+      })
+  }
+
 
   //si hay muchos items, esto no sirve (a usos practicos)
   update(){
