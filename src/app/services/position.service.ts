@@ -14,4 +14,10 @@ export class PositionService {
   getPositions(){
     return this.http.get<Position[]>(this.url);
   }
+  postPosition(name:string){
+    return this.http.post<Position>(this.url, {'name': name});
+  }
+  patchPosition(id:number, status: boolean){
+    return this.http.patch<Position>(this.url+"/"+id+"/status", {'active': status})
+  }
 }

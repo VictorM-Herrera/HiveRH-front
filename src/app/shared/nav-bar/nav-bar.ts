@@ -46,9 +46,9 @@ export class NavBar {
 
   ];
   readonly navigationItemsAdmin: readonly NavigationItem[] = [
-    { id: 'building', label: 'Sucursales', icon: 'building' },
-    { id: 'grid', label: 'Departamentos', icon: 'grid' },
-    { id: 'briefcase', label: 'Puestos', icon: 'briefcase' }
+    { id: 'building', label: 'Sucursales', icon: 'building', route: 'branches'},
+    { id: 'grid', label: 'Departamentos', icon: 'grid', route: 'departments' },
+    { id: 'briefcase', label: 'Puestos', icon: 'briefcase', route: 'positions' }
   ];
 
 

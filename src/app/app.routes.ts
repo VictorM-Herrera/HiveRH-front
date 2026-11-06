@@ -59,5 +59,20 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/employee-list/employee-list').then((m) => m.EmployeeList),
     title: 'Lista de empleados',
   },
+  {
+    path: 'branches',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/admin-branches/admin-branches').then(m => m.AdminBranches)
+  },
+  {
+    path: 'departments',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/admin-department/admin-department').then(m => m.AdminDepartment)
+  },
+  {
+    path: 'positions',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/admin-positions/admin-positions').then(m => m.AdminPositions)
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

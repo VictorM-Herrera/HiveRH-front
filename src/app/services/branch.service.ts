@@ -17,4 +17,13 @@ export class BranchService {
   getBranches(){
     return this.http.get<Branch[]>(this.url);
   }
+  postBranch(branch: Branch){
+    return this.http.post<Branch>(this.url, branch);
+  }
+  deleteBranch(id: number){
+    return this.http.delete<Branch>(this.url+"/"+id);
+  }
+  getBranchByID(id: number){
+    return this.http.get<Branch>(this.url+"/"+id);
+  }
 }
