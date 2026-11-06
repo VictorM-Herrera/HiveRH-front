@@ -127,7 +127,7 @@ button:disabled {
 
 .workspace {
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  align-items: start;
+  align-items: stretch;
 }
 
 .requests {

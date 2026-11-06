@@ -29,6 +29,13 @@ export const routes: Routes = [
     title: 'Mis licencias',
   },
   {
+    path: 'team-vacations',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () =>
+      import('./pages/team-vacations/team-vacations').then((m) => m.TeamVacations),
+    title: 'Vacaciones del equipo',
+  },
+  {
     path: 'team-licenses',
     canActivate: [authGuard, staffGuard],
     loadComponent: () => import('./pages/team-licenses/team-licenses').then((m) => m.TeamLicenses),
