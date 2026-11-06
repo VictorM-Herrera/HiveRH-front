@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { validate } from '@angular/forms/signals';
 import { PositionService } from '../../services/position.service';
 import { Position } from '../../models/position';
 
@@ -14,6 +13,7 @@ export class AdminPositions {
   private readonly positionService = inject(PositionService);
   private readonly _positions = signal<Position[]>([]);
   readonly position = this._positions.asReadonly();
+
 
   form = new FormGroup({
     createForm: new FormControl('', {
@@ -42,4 +42,19 @@ export class AdminPositions {
     }
   }
 
+  //si hay muchos items, esto no sirve (a usos practicos)
+  update(){
+    this.positionService.getPositions().subscribe({
+      next: data => this._positions.set(data)
+    })
+  }
+
+  patchPosition(id:number, status:boolean){    
+    this.positionService.patchPosition(id, !status).subscribe({
+      next: data => {
+        this.update()
+      },
+      error: err => console.log("error en el patch", err)
+    })
+  }
 }
