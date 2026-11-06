@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { BranchService } from '../../services/branch.service';
 import { Branch } from '../../models/branch';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-branches',
-  imports: [],
+  imports: [ReactiveFormsModule],
   templateUrl: './admin-branches.html',
   styleUrl: './admin-branches.css',
 })

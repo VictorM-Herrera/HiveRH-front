@@ -1,1 +1,41 @@
-<p>admin-branches works!</p>
+<h1>Sucursales - Total ({{branchCount()}})</h1>
+
+<br>
+
+<div style="display: flex; flex-direction: column; width: 600px;">
+
+    @for(branch of branches(); track branch.id_branch){
+    <div style="display: flex; gap: 10px;">
+        <small>{{branch.id_branch}}</small>
+        <strong>{{branch.name}}</strong>
+        <small>{{branch.address}}</small>
+        <small>{{branch.city}}</small>
+        <small>{{branch.active}}</small>
+        
+        @if(branch.id_branch){
+        <button (click)="deleteBranch(branch.id_branch)">delete</button>
+        }
+    </div>
+    }
+</div>
+
+<br>
+
+<aside>
+    <form [formGroup]="formBranch" (ngSubmit)="createBranch()"
+        style="display: flex; flex-direction: column; gap: 10px;">
+        <label for="">
+            nombre:
+            <input type="text" formControlName="name">
+        </label>
+        <label for="">
+            ciudad:
+            <input type="text" formControlName="city">
+        </label>
+        <label for="">
+            direccion:
+            <input type="text" formControlName="address">
+        </label>
+        <button type="submit" style="width: 60px;">Crear</button>
+    </form>
+</aside>
