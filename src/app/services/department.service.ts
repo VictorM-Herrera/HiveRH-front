@@ -21,10 +21,6 @@ export class DepartmentService {
   postDepartment(name: string) {
     return this.http.post<Department>(this.url, name);
   }
-  deleteDepartment(id: number) {
-    return this.http.delete<Department>(this.url + "/" + id);
-  }
-
 
 
   buildParams(filters: DepartmentFilter = {}) {

@@ -45,13 +45,6 @@ export class AdminDepartment {
     })
   }
 
-  deleteDepartment(id: number) {
-    this.departmentService.deleteDepartment(id).subscribe({
-      next: data => console.log("OK", data),
-      error: err => console.log("Error delete department", err)
-    })
-  }
-
   postDepartment() {
     const name = this.nameDepto.getRawValue.name;
     this.departmentService.postDepartment(name)
