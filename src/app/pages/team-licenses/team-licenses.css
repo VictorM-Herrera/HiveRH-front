@@ -41,6 +41,7 @@ fieldset {
 }
 
 .filters fieldset,
+.filter-grid,
 .workspace {
   display: grid;
   gap: 12px;
@@ -48,6 +49,34 @@ fieldset {
 
 .filters fieldset {
   grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.filters .filter-groups {
+  display: block;
+}
+
+.filter-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.more-filters {
+  margin-top: 12px;
+}
+
+.more-filters summary {
+  width: fit-content;
+  color: var(--hive-muted);
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.more-filters .filter-grid {
+  margin-top: 10px;
+}
+
+.more-filters + .filter-actions {
+  margin-top: 12px;
 }
 
 label {
@@ -294,6 +323,10 @@ h3 {
 }
 
 @media (max-width: 800px) {
+  .filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .workspace {
     grid-template-columns: minmax(0, 1fr);
   }

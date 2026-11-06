@@ -1,29 +1,3 @@
-.filter-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.more-filters {
-  margin-top: 12px;
-}
-
-.more-filters summary {
-  width: fit-content;
-  color: var(--hive-muted);
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-.more-filters .filter-grid {
-  margin-top: 10px;
-}
-
-.filter-actions {
-  margin-top: 12px;
-}
-
 .employee-row {
   min-height: 56px;
   text-decoration: none;
@@ -50,12 +24,6 @@
 
 .retry {
   align-self: flex-start;
-}
-
-@media (max-width: 800px) {
-  .filter-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 540px) {

@@ -1,4 +1,12 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { zipSync } from 'fflate';
@@ -39,6 +47,8 @@ export class TeamLicenses {
   private readonly destroyRef = inject(DestroyRef);
   private readonly query = new BehaviorSubject<LicenseFilters>(initialFilters);
   private readonly requestedId = signal<number | null>(null);
+  private readonly detailPanel = viewChild<ElementRef<HTMLElement>>('detailPanel');
+  private readonly previousDetailHeight = signal<number | null>(null);
 
   readonly filterForm = this.fb.group(
     {
@@ -110,6 +120,9 @@ export class TeamLicenses {
     const detail = this.detailResult();
     return detail && detail !== 'error' && detail.id === this.selectedRow()?.id ? detail : null;
   });
+  readonly detailMinHeight = computed(() =>
+    this.selectedRow() && !this.selectedLicense() ? this.previousDetailHeight() : null,
+  );
   readonly employeeByDni = toSignal(
     toObservable(this.page).pipe(
       switchMap((page) => {
@@ -155,7 +168,12 @@ export class TeamLicenses {
   }
 
   selectLicense(id: number): void {
-    if (!this.isSaving()) this.requestedId.set(id);
+    if (this.isSaving() || this.selectedRow()?.id === id) return;
+    if (this.selectedLicense()) {
+      const panel = this.detailPanel()?.nativeElement;
+      this.previousDetailHeight.set(panel?.getBoundingClientRect().height ?? null);
+    }
+    this.requestedId.set(id);
   }
 
   review(status: LicenseReviewRequest['status']): void {
