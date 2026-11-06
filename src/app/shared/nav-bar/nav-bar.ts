@@ -33,15 +33,15 @@ export class NavBar {
 
   readonly navigationItems: readonly NavigationItem[] = [
     { id: 'sun', label: 'Mis vacaciones', icon: 'sun', route: '/my-vacations' },
-    { id: 'file', label: 'Mis licencias', icon: 'file' },
+    { id: 'file', label: 'Mis licencias', icon: 'file', route: '/my-licenses' },
     { id: 'clock', label: 'Mi horario', icon: 'clock' },
     { id: 'profile', label: 'Mi Perfil', icon: 'profile-white', route: '/profile' },
   ];
   readonly navigationItemsStaff: readonly NavigationItem[] = [
-    { id: 'people', label: 'Empleados', icon: 'people', route:'employee-list'},
-    { id: 'calendar', label: 'Vacaciones', icon: 'calendar' },
-    { id: 'file', label: 'Licencias', icon: 'file' },
-    { id: 'clock', label: 'Horarios', icon: 'clock' },
+    { id: 'people', label: 'Empleados', icon: 'people', route: '/employee-list' },
+    { id: 'calendar', label: 'Vacaciones', icon: 'calendar', route: '/team-vacations' },
+    { id: 'file', label: 'Licencias', icon: 'file', route: '/team-licenses' },
+    // { id: 'clock', label: 'Horarios', icon: 'clock' },
     
 
   ];

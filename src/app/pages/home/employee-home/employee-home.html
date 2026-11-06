@@ -54,7 +54,7 @@
 
   @if (latestRequests().length) {
     <div class="request-list">
-      @for (request of latestRequests(); track request.id) {
+      @for (request of latestRequests(); track request.type + '-' + request.id) {
         <div class="request-row">
           <span class="request-icon">
             <img

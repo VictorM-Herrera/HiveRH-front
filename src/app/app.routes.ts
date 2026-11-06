@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
-import { authGuard } from './guards/auth.guard';
+import { authGuard, staffGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Login, title: 'Login' },
@@ -23,6 +23,25 @@ export const routes: Routes = [
     title: 'Mis vacaciones',
   },
   {
+    path: 'my-licenses',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/my-licenses/my-licenses').then((m) => m.MyLicenses),
+    title: 'Mis licencias',
+  },
+  {
+    path: 'team-vacations',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () =>
+      import('./pages/team-vacations/team-vacations').then((m) => m.TeamVacations),
+    title: 'Vacaciones del equipo',
+  },
+  {
+    path: 'team-licenses',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () => import('./pages/team-licenses/team-licenses').then((m) => m.TeamLicenses),
+    title: 'Licencias del equipo',
+  },
+  {
     path: 'profile',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
@@ -36,8 +55,9 @@ export const routes: Routes = [
   },
   {
     path: 'employee-list',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/employee-list/employee-list').then(m => m.EmployeeList)
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () => import('./pages/employee-list/employee-list').then((m) => m.EmployeeList),
+    title: 'Lista de empleados',
   },
   {
     path: 'branches',

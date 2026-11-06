@@ -6,7 +6,7 @@ import {
   VacationFilters,
   VacationRequest,
 } from '../models/vacation.models';
-import { EMPTY, expand, Observable, reduce, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { PageResponse } from '../models/page-response.models';
 import { environment } from '../../environments/environment';
 
@@ -35,17 +35,6 @@ export class VacationService {
         params: this.buildParams(filters),
       })
       .pipe(tap((response) => this._vacationsPage.set(response)));
-  }
-
-  getAllMyVacations(): Observable<Vacation[]> {
-    return this.getMyVacations().pipe(
-      expand((response) =>
-        response.page + 1 < response.totalPages
-          ? this.getMyVacations({ page: response.page + 1, size: response.size })
-          : EMPTY,
-      ),
-      reduce((vacations, response) => [...vacations, ...response.element], [] as Vacation[]),
-    );
   }
 
   deleteVacation(vacationId: number) {

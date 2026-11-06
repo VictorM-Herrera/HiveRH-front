@@ -29,7 +29,11 @@ export class EmployeeHome {
 
   readonly nextRequest = computed(
     () => this.requests()
-      .filter((request) => request.status !== 'REJECTED' && request.startDate >= this.today)
+      .filter(
+        (request) =>
+          (request.status === 'PENDING' || request.status === 'APPROVED') &&
+          request.startDate >= this.today,
+      )
       .sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null,
   );
 
@@ -59,6 +63,7 @@ export class EmployeeHome {
     },
     {
       id: 'leaves',
+      route: '/my-licenses',
       label: 'Mis licencias',
       description: 'Licencias y certificados',
       icon: 'icons/navigation/file.svg',

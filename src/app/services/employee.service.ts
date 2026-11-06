@@ -1,11 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { EmployeeFilter } from '../models/employee/employee-filter.model';
 import { Employee } from '../models/employee/employee.model';
 import { EmployeeUpdate } from '../models/employee/employee-update.model';
-import { environment } from '../../environments/environment';
 import { PageResponse } from '../models/page-response.models';
-import { EmployeeFilter } from '../models/employee/employee-filter.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -21,13 +21,20 @@ export class EmployeeService {
   readonly profilePicture = this._profilePicture.asReadonly();
   readonly employeePage = this._employeePage.asReadonly();
 
+  getEmployees(filters: EmployeeFilter = {}): Observable<PageResponse<Employee>> {
+    let params = new HttpParams().set('page', filters.page ?? 0).set('size', filters.size ?? 20);
+    for (const [name, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== '') {
+        params = params.set(name, value);
+      }
+    }
+    return this.http
+      .get<PageResponse<Employee>>(`${this.baseUrl}/api/employees`, { params })
+      .pipe(tap((response) => this._employeePage.set(response)));
+  }
+
   getEmployee(dni: string): Observable<Employee> {
     return this.http.get<Employee>(`${this.baseUrl}/api/employees/${dni}`);
-  }
-  getEmployees(filters: EmployeeFilter = {}): Observable<PageResponse<Employee>> {
-    return this.http.get<PageResponse<Employee>>(`${this.baseUrl}/api/employees`, {
-      params: this.buildParams(filters),
-    }).pipe(tap(res => this._employeePage.set(res)));
   }
   getCountEMployees(){
     return this.http.get<PageResponse<Employee>>(this.baseUrl+"/api/employees");
@@ -100,37 +107,5 @@ export class EmployeeService {
     }
 
     this._profilePicture.set(null);
-  }
-
-  private buildParams(filters: EmployeeFilter): HttpParams {
-    let params = new HttpParams().set('page', filters.page ?? 0).set('size', filters.size ?? 20);
-    if (filters.department) {
-      params = params.set('department', filters.department);
-    }
-    if (filters.dni) {
-      params = params.set('dni', filters.dni);
-    }
-
-    if (filters.fullName) {
-      params = params.set('fullName', filters.fullName);
-    }
-
-    if (filters.hire_date) {
-      params = params.set('hide_date', filters.hire_date);
-    }
-
-    if (filters.id_branch) {
-      params = params.set('id_branch', filters.id_branch);
-    }
-
-    if (filters.max_salary) {
-      params = params.set('max_salary', filters.max_salary);
-    }
-
-    if (filters.min_salary) {
-      params = params.set('min_salary', filters.min_salary);
-    }
-
-    return params;
   }
 }
