@@ -53,6 +53,7 @@ export class StaffHome {
       label: 'Empleados',
       description: 'Gestionar el equipo',
       icon: 'icons/navigation/people.svg',
+      route: '/employee-list',
     },
   ]);
 
