@@ -39,21 +39,21 @@
     readonly hiveItems: readonly HiveCarouselItem[] = [
       {
         id: 'Sucursales',
-        route: '',
+        route: 'branches',
         label: 'Gestion de sucursales',
         description: 'CRUD Sucursales',
         icon: 'icons/navigation/building.svg'
       },
       {
         id: 'Departamentos',
-        route: '',
+        route: 'departments',
         label: 'Gestion de departamentos',
         description: 'CRUD Departamentos',
         icon: 'icons/navigation/grid.svg'
       },
       {
         id: 'Puestos',
-        route: '',
+        route: 'positions',
         label: 'Gestion de puestos',
         description: 'CRUD Puestos',
         icon: 'icons/navigation/briefcase.svg'

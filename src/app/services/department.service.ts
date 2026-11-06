@@ -20,7 +20,7 @@ export class DepartmentService {
     });
   }
   postDepartment(name: string) {
-    return this.http.post<Department>(this.url, name);
+    return this.http.post<Department>(this.url, {name});
   }
 
 

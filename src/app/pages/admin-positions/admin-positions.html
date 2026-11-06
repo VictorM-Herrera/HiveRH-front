@@ -4,11 +4,15 @@
     <strong>Total de posiciones = {{position().length}}</strong>
     <div>
         <h2>Posiciones</h2>
-        @for(p of position(); track p.id_position){
-        <strong>{{p.name}}</strong>
-        <small>{{p.active}}</small>
-        <small>{{p.id_position}}</small>
-        }
+        <div style="display: flex; flex-direction: column;">
+            @for(p of position(); track p.id_position){
+                <div>
+                    <strong>{{p.name}}  </strong>
+                    <small>{{p.active}}  </small>
+                    <small>{{p.id_position}}</small>
+                </div>
+            }
+        </div>
     </div>
 </div>
 
