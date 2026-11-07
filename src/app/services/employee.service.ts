@@ -4,6 +4,7 @@ import { catchError, map, Observable, of, switchMap, tap, throwError } from 'rxj
 import { EmployeeFilter } from '../models/employee/employee-filter.model';
 import { Employee } from '../models/employee/employee.model';
 import { EmployeeUpdate } from '../models/employee/employee-update.model';
+import { EmployeeCreateRequest } from '../models/employee/employee-create.model';
 import { PageResponse } from '../models/page-response.models';
 import { environment } from '../../environments/environment';
 
@@ -36,6 +37,11 @@ export class EmployeeService {
   getEmployee(dni: string): Observable<Employee> {
     return this.http.get<Employee>(`${this.baseUrl}/api/employees/${dni}`);
   }
+
+  createEmployee(data: EmployeeCreateRequest): Observable<Employee> {
+    return this.http.post<Employee>(`${this.baseUrl}/api/employees`, data);
+  }
+
   getCountEMployees(){
     return this.http.get<PageResponse<Employee>>(this.baseUrl+"/api/employees");
   }
