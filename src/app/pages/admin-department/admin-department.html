@@ -15,7 +15,9 @@
                         <small>{{p.active}}  </small>
                         <small>{{p.id_department}}</small>
                     </div>
-                    <!-- <button (click)="patchPosition(p.id_position, p.active)">baja</button> -->
+                    @if(p.id_department){
+                    <button (click)="changeStatus(p.id_department, p.active)">baja</button>
+                    }
                 </div>
             }
         </div>
@@ -24,7 +26,7 @@
 
 <br>
 
-<form [formGroup]="formDepartment" (ngSubmit)="postDepartment()">
+<form [formGroup]="createDto" (ngSubmit)="createDepartment()">
     <label for="name">
         Nombre de la departamento:
         <input type="text" formControlName="name">

@@ -19,7 +19,13 @@ export class DepartmentService {
     });
   }
   postDepartment(name: string) {
-    return this.http.post<Department>(this.url, {name});
+    return this.http.post<Department>(this.url, {'name': name});
+  }
+  patchDeparment(id:number, status:boolean){
+    return this.http.patch<Department>(`${this.url}/${id}/status`, {'active': status})
+  }
+  putDepartment(id:number, name:string){
+    return this.http.put<Department>(`${this.url}${id}`, {'name': name})
   }
 
 

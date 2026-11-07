@@ -32,11 +32,13 @@ export class AdminDepartment {
       nonNullable: true
     }),
   })
-
-  nameDepto = new FormControl({
-      validators: Validators.required,
-      nonNullable: true
+  createDto = new FormGroup({
+    name: new FormControl('',{
+        validators: Validators.required,
+        nonNullable: true
+    }),
   })
+
 
 
   getDepartments() {
@@ -47,17 +49,30 @@ export class AdminDepartment {
     this.departmentService.getDepartments(filter).subscribe({
       next: data => this._departments.set(data),
       error: err => console.log("departamentos no encontrados", err)
-
     })
   }
 
-  postDepartment() {
-    const name = this.nameDepto.getRawValue.name;
-    this.departmentService.postDepartment(name)
+  createDepartment(){
+    const name = this.createDto.getRawValue().name
+    this.departmentService.postDepartment(name).subscribe({
+      next: data => this._departments.update(dpto => [...dpto, data]),
+      error: err => console.log("error al crear departamento", err)
+    })
   }
 
-  putDepartment(){
-
+  changeStatus(id:number, status:boolean){
+    this.departmentService.patchDeparment(id, !status).subscribe({
+      next: newDpto => {  
+        this._departments.update(lista => 
+          lista.map(dpto =>
+            dpto.id_department === newDpto.id_department
+            ? newDpto
+            : dpto
+          )
+        )
+    },
+    error: err => console.log("error en el patch", err)  
+  })
   }
 
 

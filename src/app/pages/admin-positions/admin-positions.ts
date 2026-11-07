@@ -57,4 +57,6 @@ export class AdminPositions {
       error: err => console.log("error en el patch", err)
     })
   }
+
+  
 }
