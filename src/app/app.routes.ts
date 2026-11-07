@@ -72,8 +72,9 @@ export const routes: Routes = [
   },
   {
     path: 'positions',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/admin-positions/admin-positions').then(m => m.AdminPositions)
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./pages/admin-positions/admin-positions').then((m) => m.AdminPositions),
+    title: 'Puestos',
   },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
