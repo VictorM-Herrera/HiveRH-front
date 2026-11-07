@@ -1,29 +1,32 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Branch } from '../models/branch';
+import { Branch, BranchRequest, BranchUpdate } from '../models/branch.model';
 import { environment } from '../../environments/environment';
-import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BranchService {
-  private readonly http = inject(HttpClient)
-  private readonly url = environment.baseUrl+"/api/branches";
+  private readonly http = inject(HttpClient);
+  private readonly url = `${environment.baseUrl}/api/branches`;
 
-  
-
-
-  getBranches(){
+  getBranches() {
     return this.http.get<Branch[]>(this.url);
   }
-  postBranch(branch: Branch){
+
+  postBranch(branch: BranchRequest) {
     return this.http.post<Branch>(this.url, branch);
   }
-  deleteBranch(id: number){
-    return this.http.delete<Branch>(this.url+"/"+id);
+
+  updateBranch(id: number, branch: BranchUpdate) {
+    return this.http.put<Branch>(`${this.url}/${id}`, branch);
   }
-  getBranchByID(id: number){
-    return this.http.get<Branch>(this.url+"/"+id);
+
+  deleteBranch(id: number) {
+    return this.http.delete<Branch>(`${this.url}/${id}`);
+  }
+
+  getBranchByID(id: number) {
+    return this.http.get<Branch>(`${this.url}/${id}`);
   }
 }

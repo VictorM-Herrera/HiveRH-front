@@ -16,3 +16,6 @@ export const staffGuard: CanActivateFn = () => {
     inject(Router).createUrlTree(['/home'])
   );
 };
+
+export const adminGuard: CanActivateFn = () =>
+  inject(AuthService).roles().includes('ROLE_ADMIN') || inject(Router).createUrlTree(['/home']);

@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PositionService } from '../../services/position.service';
-import { Position } from '../../models/position';
+import { Position } from '../../models/position.model';
+
 
 @Component({
   selector: 'app-admin-positions',

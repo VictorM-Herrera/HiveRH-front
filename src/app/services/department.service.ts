@@ -1,9 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Department } from '../models/department';
+import { Department } from '../models/department.model';
 import { DepartmentFilter } from '../models/department-filter';
-import { PageResponse } from '../models/page-response.models';
 import { Observable } from 'rxjs';
 
 @Injectable({
