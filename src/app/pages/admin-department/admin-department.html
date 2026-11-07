@@ -17,7 +17,7 @@
       </header>
 
       <form class="branch-search" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
-        <fieldset>
+        <fieldset [disabled]="isChangingStatus()">
           <div class="position-filters">
             <label>
               Nombre
@@ -59,7 +59,7 @@
             <li class="branch-row">
               <div class="branch-item">
                 <span class="branch-icon">
-                  <span aria-hidden="true">D</span>
+                  <img src="icons/navigation/grid.svg" alt="" draggable="false" />
                 </span>
                 <div class="row-copy">
                   <strong>{{ department.name }}</strong>
@@ -73,13 +73,46 @@
                       type="button"
                       class="button option"
                       [class.reject]="department.active"
-                      (click)="changeStatus(department.id_department!, department.active)"
+                      [disabled]="isChangingStatus()"
+                      (click)="pendingStatusChange.set(department)"
                     >
                       {{ department.active ? 'Dar de baja' : 'Reactivar' }}
                     </button>
                   </div>
                 }
               </div>
+              @if (pendingStatusChange()?.id_department === department.id_department) {
+                <div
+                  class="branch-confirmation"
+                  role="group"
+                  aria-label="Confirmar cambio de estado"
+                >
+                  <p>
+                    ¿Querés {{ department.active ? 'dar de baja' : 'reactivar' }} el departamento
+                    <strong>{{ department.name }}</strong>?
+                  </p>
+                  <div class="branch-actions">
+                    <button
+                      type="button"
+                      class="button"
+                      [disabled]="isChangingStatus()"
+                      (click)="pendingStatusChange.set(null)"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="button"
+                      [class.reject]="department.active"
+                      [class.primary]="!department.active"
+                      [disabled]="isChangingStatus()"
+                      (click)="changeStatus()"
+                    >
+                      {{ department.active ? 'Confirmar baja' : 'Confirmar reactivación' }}
+                    </button>
+                  </div>
+                </div>
+              }
             </li>
           } @empty {
             <li class="empty">No encontramos departamentos para mostrar.</li>

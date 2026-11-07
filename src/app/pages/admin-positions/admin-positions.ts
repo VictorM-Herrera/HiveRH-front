@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize, Observable, Subscription } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { ToastComponent, ToastType } from '../../components/toast/toast';
 import { Position, PositionFilters } from '../../models/position.model';
 import { PositionService } from '../../services/position.service';
@@ -21,7 +21,6 @@ export class AdminPositions {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private appliedFilters: PositionFilters = {};
-  private listRequest?: Subscription;
 
   readonly filterForm = this.fb.group({
     name: ['', Validators.maxLength(100)],
@@ -58,9 +57,8 @@ export class AdminPositions {
   }
 
   loadPositions(): void {
-    this.listRequest?.unsubscribe();
     this.listResult.set(null);
-    this.listRequest = this.positionService
+    this.positionService
       .getPositions(this.appliedFilters)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

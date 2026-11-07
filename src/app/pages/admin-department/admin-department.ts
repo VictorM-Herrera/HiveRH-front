@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DepartmentService } from '../../services/department.service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentFilter } from '../../models/department-filter';
 import { Department } from '../../models/department.model';
-import { BehaviorSubject, catchError, of, startWith, switchMap } from 'rxjs';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-admin-department',
@@ -19,7 +19,8 @@ import { BehaviorSubject, catchError, of, startWith, switchMap } from 'rxjs';
 })
 export class AdminDepartment {
   private readonly departmentService = inject(DepartmentService);
-  private readonly filters = new BehaviorSubject<DepartmentFilter>({});
+  private readonly destroyRef = inject(DestroyRef);
+  private appliedFilters: DepartmentFilter = {};
 
   readonly filterForm = new FormGroup({
     name: new FormControl('', {
@@ -35,22 +36,20 @@ export class AdminDepartment {
     }),
   });
 
-  readonly listResult = toSignal(
-    this.filters.pipe(
-      switchMap((filters) =>
-        this.departmentService.getDepartments(filters).pipe(
-          catchError(() => of('error' as const)),
-          startWith(null),
-        ),
-      ),
-    ),
-    { initialValue: null },
-  );
+  readonly listResult = signal<Department[] | 'error' | null>(null);
+  readonly pendingStatusChange = signal<Department | null>(null);
+  readonly isChangingStatus = signal(false);
+
+  constructor() {
+    this.loadDepartments();
+  }
 
   applyFilters(): void {
-    if (this.filterForm.invalid) return;
+    if (this.filterForm.invalid || this.isChangingStatus()) return;
     const { name, active } = this.filterForm.getRawValue();
-    this.filters.next({ name: name.trim() || undefined, active: active ?? undefined });
+    this.pendingStatusChange.set(null);
+    this.appliedFilters = { name: name.trim() || undefined, active: active ?? undefined };
+    this.loadDepartments();
   }
 
   resetFilters(): void {
@@ -59,7 +58,14 @@ export class AdminDepartment {
   }
 
   loadDepartments(): void {
-    this.filters.next(this.filters.value);
+    this.listResult.set(null);
+    this.departmentService
+      .getDepartments(this.appliedFilters)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (departments) => this.listResult.set(departments),
+        error: () => this.listResult.set('error'),
+      });
   }
 
   createDepartment(){
@@ -74,10 +80,22 @@ export class AdminDepartment {
     });
   }
 
-  changeStatus(id: number, status: boolean): void {
-    this.departmentService.patchDeparment(id, !status).subscribe({
-      next: () => this.loadDepartments(),
-      error: (err) => console.log('error en el patch', err),
-    });
+  changeStatus(): void {
+    const department = this.pendingStatusChange();
+    if (!department?.id_department || this.isChangingStatus()) return;
+    this.isChangingStatus.set(true);
+    this.departmentService
+      .patchDeparment(department.id_department, !department.active)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isChangingStatus.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.pendingStatusChange.set(null);
+          this.loadDepartments();
+        },
+        error: (err) => console.log('error en el patch', err),
+      });
   }
 }
