@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
-import { authGuard, staffGuard } from './guards/auth.guard';
+import { adminGuard, authGuard, staffGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Login, title: 'Login' },
@@ -61,8 +61,9 @@ export const routes: Routes = [
   },
   {
     path: 'branches',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/admin-branches/admin-branches').then(m => m.AdminBranches)
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./pages/admin-branches/admin-branches').then((m) => m.AdminBranches),
+    title: 'Sucursales',
   },
   {
     path: 'departments',
