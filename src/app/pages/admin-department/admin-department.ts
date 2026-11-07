@@ -5,10 +5,11 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { DepartmentFilter } from '../../models/department-filter';
 import { Department } from '../../models/department.model';
 import { finalize } from 'rxjs';
+import { ToastComponent, ToastType } from '../../components/toast/toast';
 
 @Component({
   selector: 'app-admin-department',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ToastComponent],
   templateUrl: './admin-department.html',
   styleUrls: [
     '../team-licenses/team-licenses.css',
@@ -29,23 +30,25 @@ export class AdminDepartment {
     }),
     active: new FormControl<boolean | null>(null),
   });
-  createDto = new FormGroup({
+  readonly form = new FormGroup({
     name: new FormControl('', {
-      validators: Validators.required,
+      validators: [Validators.required, Validators.maxLength(100)],
       nonNullable: true,
     }),
   });
 
   readonly listResult = signal<Department[] | 'error' | null>(null);
+  readonly editingDepartment = signal<Department | null>(null);
   readonly pendingStatusChange = signal<Department | null>(null);
-  readonly isChangingStatus = signal(false);
+  readonly isSaving = signal(false);
+  readonly toast = signal<{ type: ToastType; title: string; message: string } | null>(null);
 
   constructor() {
     this.loadDepartments();
   }
 
   applyFilters(): void {
-    if (this.filterForm.invalid || this.isChangingStatus()) return;
+    if (this.filterForm.invalid || this.isSaving()) return;
     const { name, active } = this.filterForm.getRawValue();
     this.pendingStatusChange.set(null);
     this.appliedFilters = { name: name.trim() || undefined, active: active ?? undefined };
@@ -68,27 +71,64 @@ export class AdminDepartment {
       });
   }
 
-  createDepartment(){
-    const name = this.createDto.getRawValue().name.trim();
-    if (!name) return;
-    this.departmentService.postDepartment(name).subscribe({
-      next: () => {
-        this.createDto.reset();
-        this.loadDepartments();
-      },
-      error: (err) => console.log('error al crear departamento', err),
-    });
+  editDepartment(department: Department): void {
+    if (!department.id_department || this.isSaving()) return;
+    this.pendingStatusChange.set(null);
+    this.editingDepartment.set(department);
+    this.form.reset({ name: department.name });
+  }
+
+  resetForm(): void {
+    this.editingDepartment.set(null);
+    this.form.reset();
+  }
+
+  saveDepartment(): void {
+    if (this.isSaving() || this.listResult() === null) return;
+    const name = this.form.controls.name.value.trim();
+    this.form.controls.name.setValue(name);
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
+
+    const editing = this.editingDepartment();
+    const request = editing?.id_department
+      ? this.departmentService.putDepartment(editing.id_department, name)
+      : this.departmentService.postDepartment(name);
+    this.isSaving.set(true);
+    request
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isSaving.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.resetForm();
+          this.pendingStatusChange.set(null);
+          this.loadDepartments();
+          this.toast.set({
+            type: 'success',
+            title: 'Departamentos',
+            message: editing ? 'Departamento actualizado.' : 'Departamento creado.',
+          });
+        },
+        error: () =>
+          this.toast.set({
+            type: 'error',
+            title: 'Departamentos',
+            message: 'No pudimos guardar el departamento. Intentá nuevamente.',
+          }),
+      });
   }
 
   changeStatus(): void {
     const department = this.pendingStatusChange();
-    if (!department?.id_department || this.isChangingStatus()) return;
-    this.isChangingStatus.set(true);
+    if (!department?.id_department || this.isSaving()) return;
+    this.isSaving.set(true);
     this.departmentService
       .patchDeparment(department.id_department, !department.active)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.isChangingStatus.set(false)),
+        finalize(() => this.isSaving.set(false)),
       )
       .subscribe({
         next: () => {
