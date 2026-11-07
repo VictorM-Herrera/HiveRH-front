@@ -1,0 +1,153 @@
+<div class="modal-backdrop" (click)="close()">
+  <section
+    class="edit-modal"
+    (click)="$event.stopPropagation()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="create-employee-title"
+  >
+    <header class="modal-heading">
+      <div>
+        <p class="eyebrow">DATOS DEL EMPLEADO</p>
+        <h2 id="create-employee-title">Dar de alta empleado</h2>
+        <p>Completá los datos personales y su asignación inicial.</p>
+      </div>
+      <button
+        type="button"
+        class="close-button"
+        title="Cerrar"
+        [disabled]="isSaving()"
+        (click)="close()"
+      >
+        <img src="icons/icon-close.svg" alt="" draggable="false" />
+      </button>
+    </header>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="modal-body">
+        <h3>Datos personales</h3>
+        <div class="form-grid">
+          <label
+            >Nombre<input formControlName="name" maxlength="100" autocomplete="given-name"
+          /></label>
+          <label
+            >Apellido<input formControlName="lastName" maxlength="100" autocomplete="family-name"
+          /></label>
+          <label
+            >DNI<input
+              formControlName="dni"
+              inputmode="numeric"
+              maxlength="8"
+              placeholder="Sin puntos"
+          /></label>
+          <label
+            >Género
+            <select formControlName="genre">
+              <option value="FEMALE">Femenino</option>
+              <option value="MALE">Masculino</option>
+              <option value="NON_BINARY">No binario</option>
+              <option value="OTHER">Otro</option>
+            </select>
+          </label>
+          <label
+            >Fecha de nacimiento<input type="date" formControlName="birth_date" [max]="today"
+          /></label>
+          <label
+            >Teléfono<input
+              type="tel"
+              formControlName="phoneNumber"
+              minlength="6"
+              maxlength="20"
+              autocomplete="tel"
+          /></label>
+          <label>Ciudad<input formControlName="city" autocomplete="address-level2" /></label>
+          <label>Dirección<input formControlName="address" autocomplete="street-address" /></label>
+        </div>
+        @if (form.controls.dni.touched && form.controls.dni.invalid) {
+          <p class="field-error">Ingresá un DNI de 7 u 8 números, sin puntos.</p>
+        }
+        @if (form.controls.phoneNumber.touched && form.controls.phoneNumber.invalid) {
+          <p class="field-error">El teléfono debe tener entre 6 y 20 caracteres.</p>
+        }
+        @if (form.controls.birth_date.touched && form.hasError('underage')) {
+          <p class="field-error">El empleado debe tener al menos 18 años.</p>
+        }
+
+        <h3 class="employment-heading">Información laboral</h3>
+        <div class="form-grid">
+          <label
+            >Fecha de ingreso<input type="date" formControlName="hire_date" [max]="today"
+          /></label>
+          <label
+            >Salario base<input type="number" formControlName="base_salary" min="0.01" step="0.01"
+          /></label>
+          <label
+            >Sucursal
+            <select formControlName="id_branch">
+              <option [ngValue]="0" disabled>Seleccioná una sucursal</option>
+              @for (branch of options()?.branches ?? []; track branch.id_branch) {
+                <option [ngValue]="branch.id_branch">{{ branch.name }} · {{ branch.city }}</option>
+              }
+            </select>
+          </label>
+          <label
+            >Puesto
+            <select formControlName="id_position">
+              <option [ngValue]="0" disabled>Seleccioná un puesto</option>
+              @for (position of options()?.positions ?? []; track position.id_position) {
+                <option [ngValue]="position.id_position">{{ position.name }}</option>
+              }
+            </select>
+          </label>
+          <label
+            >Departamento
+            <select formControlName="id_department">
+              <option [ngValue]="0" disabled>Seleccioná un departamento</option>
+              @for (department of options()?.departments ?? []; track department.id_department) {
+                <option [ngValue]="department.id_department">{{ department.name }}</option>
+              }
+            </select>
+          </label>
+        </div>
+        @if (optionsError()) {
+          <p class="field-error">No pudimos cargar las opciones de asignación.</p>
+          <button type="button" class="cancel-button" (click)="loadOptions()">Reintentar</button>
+        } @else if (!options()) {
+          <p role="status">Cargando sucursales, puestos y departamentos...</p>
+        } @else if (
+          !options()?.branches?.length ||
+          !options()?.positions?.length ||
+          !options()?.departments?.length
+        ) {
+          <p class="field-error">
+            Para dar de alta un empleado necesitás una sucursal, un puesto y un departamento
+            activos.
+          </p>
+        }
+        @if (form.controls.hire_date.touched && form.hasError('futureHireDate')) {
+          <p class="field-error">La fecha de ingreso debe ser hoy o anterior.</p>
+        }
+        @if (form.touched && form.invalid) {
+          <p class="field-error">Completá todos los campos e ingresá un salario mayor a cero.</p>
+        }
+      </div>
+      <footer class="modal-footer">
+        <button type="button" class="cancel-button" [disabled]="isSaving()" (click)="close()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="save-button"
+          [disabled]="form.invalid || isSaving() || !options()"
+        >
+          Dar de alta empleado<img src="icons/icon-arrow-right.svg" alt="" draggable="false" />
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>
+@if (isSaving()) {
+  <app-loading-circle message="Dando de alta al empleado..." />
+}
+@if (error(); as message) {
+  <app-toast [message]="message" (dismissed)="error.set(null)" />
+}
