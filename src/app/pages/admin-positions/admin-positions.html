@@ -152,7 +152,7 @@
             @if (editingPosition()) {
               <button type="button" class="button" (click)="resetForm()">Cancelar edición</button>
             }
-            <button type="submit" class="button primary">
+            <button type="submit" class="button primary" [disabled]="form.invalid">
               {{ editingPosition() ? 'Guardar cambios' : 'Crear puesto +' }}
             </button>
           </div>

@@ -17,7 +17,7 @@
       </header>
 
       <form class="branch-search" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
-        <fieldset>
+        <fieldset [disabled]="isSaving()">
           <div class="position-filters">
             <label>
               Nombre
@@ -59,7 +59,7 @@
             <li class="branch-row">
               <div class="branch-item">
                 <span class="branch-icon">
-                  <span aria-hidden="true">D</span>
+                  <img src="icons/navigation/grid.svg" alt="" draggable="false" />
                 </span>
                 <div class="row-copy">
                   <strong>{{ department.name }}</strong>
@@ -71,15 +71,56 @@
                   <div class="branch-actions">
                     <button
                       type="button"
+                      class="button edit-branch option"
+                      [disabled]="isSaving()"
+                      (click)="editDepartment(department); departmentName.focus()"
+                    >
+                      <img src="icons/icon-pencil.svg" alt="" draggable="false" /> Editar
+                    </button>
+                    <button
+                      type="button"
                       class="button option"
                       [class.reject]="department.active"
-                      (click)="changeStatus(department.id_department!, department.active)"
+                      [disabled]="isSaving()"
+                      (click)="pendingStatusChange.set(department)"
                     >
                       {{ department.active ? 'Dar de baja' : 'Reactivar' }}
                     </button>
                   </div>
                 }
               </div>
+              @if (pendingStatusChange()?.id_department === department.id_department) {
+                <div
+                  class="branch-confirmation"
+                  role="group"
+                  aria-label="Confirmar cambio de estado"
+                >
+                  <p>
+                    ¿Querés {{ department.active ? 'dar de baja' : 'reactivar' }} el departamento
+                    <strong>{{ department.name }}</strong>?
+                  </p>
+                  <div class="branch-actions">
+                    <button
+                      type="button"
+                      class="button"
+                      [disabled]="isSaving()"
+                      (click)="pendingStatusChange.set(null)"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="button"
+                      [class.reject]="department.active"
+                      [class.primary]="!department.active"
+                      [disabled]="isSaving()"
+                      (click)="changeStatus()"
+                    >
+                      {{ department.active ? 'Confirmar baja' : 'Confirmar reactivación' }}
+                    </button>
+                  </div>
+                </div>
+              }
             </li>
           } @empty {
             <li class="empty">No encontramos departamentos para mostrar.</li>
@@ -90,17 +131,32 @@
 
     <section class="panel">
       <header>
-        <h2>Nuevo departamento</h2>
+        <h2>{{ editingDepartment() ? 'Editar departamento' : 'Nuevo departamento' }}</h2>
+        @if (editingDepartment(); as department) {
+          <p class="muted branch-description">{{ department.name }}</p>
+        }
       </header>
-      <form [formGroup]="createDto" (ngSubmit)="createDepartment()">
-        <fieldset class="branch-fields">
+      <form [formGroup]="form" (ngSubmit)="saveDepartment()">
+        <fieldset class="branch-fields" [disabled]="isSaving() || listResult() === null">
           <label>
             Nombre del departamento
-            <input type="text" formControlName="name" maxlength="100" placeholder="Ej. Recursos Humanos" />
+            <input
+              #departmentName
+              type="text"
+              formControlName="name"
+              maxlength="100"
+              placeholder="Ej. Recursos Humanos"
+            />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <span class="field-error">Ingresá un nombre de hasta 100 caracteres.</span>
+            }
           </label>
           <div class="branch-actions form-actions">
-            <button type="submit" class="button primary" [disabled]="createDto.invalid">
-              Crear departamento +
+            @if (editingDepartment()) {
+              <button type="button" class="button" (click)="resetForm()">Cancelar edición</button>
+            }
+            <button type="submit" class="button primary" [disabled]="form.invalid">
+              {{ editingDepartment() ? 'Guardar cambios' : 'Crear departamento +' }}
             </button>
           </div>
         </fieldset>
@@ -108,3 +164,12 @@
     </section>
   </div>
 </div>
+
+@if (toast(); as message) {
+  <app-toast
+    [type]="message.type"
+    [title]="message.title"
+    [message]="message.message"
+    (dismissed)="toast.set(null)"
+  />
+}

@@ -1,14 +1,15 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DepartmentService } from '../../services/department.service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentFilter } from '../../models/department-filter';
 import { Department } from '../../models/department.model';
-import { BehaviorSubject, catchError, of, startWith, switchMap } from 'rxjs';
+import { finalize } from 'rxjs';
+import { ToastComponent, ToastType } from '../../components/toast/toast';
 
 @Component({
   selector: 'app-admin-department',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ToastComponent],
   templateUrl: './admin-department.html',
   styleUrls: [
     '../team-licenses/team-licenses.css',
@@ -19,7 +20,8 @@ import { BehaviorSubject, catchError, of, startWith, switchMap } from 'rxjs';
 })
 export class AdminDepartment {
   private readonly departmentService = inject(DepartmentService);
-  private readonly filters = new BehaviorSubject<DepartmentFilter>({});
+  private readonly destroyRef = inject(DestroyRef);
+  private appliedFilters: DepartmentFilter = {};
 
   readonly filterForm = new FormGroup({
     name: new FormControl('', {
@@ -28,29 +30,29 @@ export class AdminDepartment {
     }),
     active: new FormControl<boolean | null>(null),
   });
-  createDto = new FormGroup({
+  readonly form = new FormGroup({
     name: new FormControl('', {
-      validators: Validators.required,
+      validators: [Validators.required, Validators.maxLength(100)],
       nonNullable: true,
     }),
   });
 
-  readonly listResult = toSignal(
-    this.filters.pipe(
-      switchMap((filters) =>
-        this.departmentService.getDepartments(filters).pipe(
-          catchError(() => of('error' as const)),
-          startWith(null),
-        ),
-      ),
-    ),
-    { initialValue: null },
-  );
+  readonly listResult = signal<Department[] | 'error' | null>(null);
+  readonly editingDepartment = signal<Department | null>(null);
+  readonly pendingStatusChange = signal<Department | null>(null);
+  readonly isSaving = signal(false);
+  readonly toast = signal<{ type: ToastType; title: string; message: string } | null>(null);
+
+  constructor() {
+    this.loadDepartments();
+  }
 
   applyFilters(): void {
-    if (this.filterForm.invalid) return;
+    if (this.filterForm.invalid || this.isSaving()) return;
     const { name, active } = this.filterForm.getRawValue();
-    this.filters.next({ name: name.trim() || undefined, active: active ?? undefined });
+    this.pendingStatusChange.set(null);
+    this.appliedFilters = { name: name.trim() || undefined, active: active ?? undefined };
+    this.loadDepartments();
   }
 
   resetFilters(): void {
@@ -59,25 +61,81 @@ export class AdminDepartment {
   }
 
   loadDepartments(): void {
-    this.filters.next(this.filters.value);
+    this.listResult.set(null);
+    this.departmentService
+      .getDepartments(this.appliedFilters)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (departments) => this.listResult.set(departments),
+        error: () => this.listResult.set('error'),
+      });
   }
 
-  createDepartment(){
-    const name = this.createDto.getRawValue().name.trim();
-    if (!name) return;
-    this.departmentService.postDepartment(name).subscribe({
-      next: () => {
-        this.createDto.reset();
-        this.loadDepartments();
-      },
-      error: (err) => console.log('error al crear departamento', err),
-    });
+  editDepartment(department: Department): void {
+    if (!department.id_department || this.isSaving()) return;
+    this.pendingStatusChange.set(null);
+    this.editingDepartment.set(department);
+    this.form.reset({ name: department.name });
   }
 
-  changeStatus(id: number, status: boolean): void {
-    this.departmentService.patchDeparment(id, !status).subscribe({
-      next: () => this.loadDepartments(),
-      error: (err) => console.log('error en el patch', err),
-    });
+  resetForm(): void {
+    this.editingDepartment.set(null);
+    this.form.reset();
+  }
+
+  saveDepartment(): void {
+    if (this.isSaving() || this.listResult() === null) return;
+    const name = this.form.controls.name.value.trim();
+    this.form.controls.name.setValue(name);
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
+
+    const editing = this.editingDepartment();
+    const request = editing?.id_department
+      ? this.departmentService.putDepartment(editing.id_department, name)
+      : this.departmentService.postDepartment(name);
+    this.isSaving.set(true);
+    request
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isSaving.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.resetForm();
+          this.pendingStatusChange.set(null);
+          this.loadDepartments();
+          this.toast.set({
+            type: 'success',
+            title: 'Departamentos',
+            message: editing ? 'Departamento actualizado.' : 'Departamento creado.',
+          });
+        },
+        error: () =>
+          this.toast.set({
+            type: 'error',
+            title: 'Departamentos',
+            message: 'No pudimos guardar el departamento. Intentá nuevamente.',
+          }),
+      });
+  }
+
+  changeStatus(): void {
+    const department = this.pendingStatusChange();
+    if (!department?.id_department || this.isSaving()) return;
+    this.isSaving.set(true);
+    this.departmentService
+      .patchDeparment(department.id_department, !department.active)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isSaving.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          this.pendingStatusChange.set(null);
+          this.loadDepartments();
+        },
+        error: (err) => console.log('error en el patch', err),
+      });
   }
 }

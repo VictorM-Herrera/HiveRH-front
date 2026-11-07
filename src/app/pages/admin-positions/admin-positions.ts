@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BehaviorSubject, catchError, finalize, Observable, of, startWith, switchMap } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { ToastComponent, ToastType } from '../../components/toast/toast';
 import { Position, PositionFilters } from '../../models/position.model';
 import { PositionService } from '../../services/position.service';
@@ -20,7 +20,7 @@ export class AdminPositions {
   private readonly positionService = inject(PositionService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly filters = new BehaviorSubject<PositionFilters>({});
+  private appliedFilters: PositionFilters = {};
 
   readonly filterForm = this.fb.group({
     name: ['', Validators.maxLength(100)],
@@ -30,30 +30,25 @@ export class AdminPositions {
     name: ['', [Validators.required, Validators.maxLength(100)]],
   });
 
-  readonly listResult = toSignal(
-    this.filters.pipe(
-      switchMap((filters) =>
-        this.positionService.getPositions(filters).pipe(
-          catchError(() => of('error' as const)),
-          startWith(null),
-        ),
-      ),
-    ),
-    { initialValue: null },
-  );
+  readonly listResult = signal<Position[] | 'error' | null>(null);
   readonly editingPosition = signal<Position | null>(null);
   readonly pendingStatusChange = signal<Position | null>(null);
   readonly isSaving = signal(false);
   readonly toast = signal<{ type: ToastType; title: string; message: string } | null>(null);
 
+  constructor() {
+    this.loadPositions();
+  }
+
   applyFilters(): void {
     if (this.isSaving() || this.filterForm.invalid) return;
     const { name, active } = this.filterForm.getRawValue();
     this.pendingStatusChange.set(null);
-    this.filters.next({
+    this.appliedFilters = {
       name: name.trim() || undefined,
       active: active ?? undefined,
-    });
+    };
+    this.loadPositions();
   }
 
   resetFilters(): void {
@@ -62,7 +57,14 @@ export class AdminPositions {
   }
 
   loadPositions(): void {
-    this.filters.next(this.filters.value);
+    this.listResult.set(null);
+    this.positionService
+      .getPositions(this.appliedFilters)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (positions) => this.listResult.set(positions),
+        error: () => this.listResult.set('error'),
+      });
   }
 
   editPosition(position: Position): void {

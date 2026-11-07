@@ -25,7 +25,7 @@ export class DepartmentService {
     return this.http.patch<Department>(`${this.url}/${id}/status`, {'active': status})
   }
   putDepartment(id:number, name:string){
-    return this.http.put<Department>(`${this.url}${id}`, {'name': name})
+    return this.http.put<Department>(`${this.url}/${id}`, {'name': name})
   }
 
 
