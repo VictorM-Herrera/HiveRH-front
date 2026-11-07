@@ -74,11 +74,7 @@
       
       if(this._departments().length === 0){ this.departmentService.getDepartments().subscribe({
         next: deps => {
-          console.log(deps)
-          
-          this._departments.set(deps)
-          console.log(this._departments().length)
-          
+          this._departments.set(deps)          
           this.departmentCount.set(deps.length)
         },
         error: err => console.log("Error al cargar departamentos", err)
