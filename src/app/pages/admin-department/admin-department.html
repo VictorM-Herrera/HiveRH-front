@@ -1,37 +1,110 @@
-<section style="display: flex; flex-direction: column; align-items: center;">
-<h1>DEPARTAMENTOS</h1>
-<br>
+<div class="team-page">
+  <header>
+    <p class="eyebrow">Organización</p>
+    <h1>Departamentos</h1>
+  </header>
 
-<div style="display: flex; flex-direction: column; gap: 20px; border: 2px solid black; width: 70%;">
-    <strong>Total de departamentos = {{departments().length}}</strong>
-    <div>
-        <h2>Departamentos</h2>
-        <br>
-        <div style="display: flex; flex-direction: column; width: 600px;">
-            @for(p of departments(); track p.id_department){
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <strong>{{p.name}}  </strong>
-                        <small>{{p.active}}  </small>
-                        <small>{{p.id_department}}</small>
-                    </div>
-                    @if(p.id_department){
-                    <button (click)="changeStatus(p.id_department, p.active)">baja</button>
-                    }
+  <div class="workspace branch-workspace">
+    <section class="panel">
+      @let result = listResult();
+      <header class="list-header">
+        <h2>Tu listado de departamentos</h2>
+        @if (result && result !== 'error') {
+          <p class="muted">
+            {{ result.length }} {{ result.length === 1 ? 'departamento' : 'departamentos' }}
+          </p>
+        }
+      </header>
+
+      <form class="branch-search" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+        <fieldset>
+          <div class="position-filters">
+            <label>
+              Nombre
+              <input
+                type="search"
+                formControlName="name"
+                maxlength="100"
+                placeholder="Ej. Ventas"
+              />
+            </label>
+            <label>
+              Estado
+              <select formControlName="active">
+                <option [ngValue]="null">Todos</option>
+                <option [ngValue]="true">Activos</option>
+                <option [ngValue]="false">Inactivos</option>
+              </select>
+            </label>
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="button" (click)="resetFilters()">
+              Restablecer
+            </button>
+            <button type="submit" class="button primary" [disabled]="filterForm.invalid">
+              Filtrar
+            </button>
+          </div>
+        </fieldset>
+      </form>
+
+      @if (result === null) {
+        <p class="empty" role="status">Cargando departamentos…</p>
+      } @else if (result === 'error') {
+        <p class="empty">No pudimos cargar los departamentos.</p>
+        <button type="button" class="button" (click)="loadDepartments()">Reintentar</button>
+      } @else {
+        <ul class="request-list">
+          @for (department of result; track department.id_department) {
+            <li class="branch-row">
+              <div class="branch-item">
+                <span class="branch-icon">
+                  <span aria-hidden="true">D</span>
+                </span>
+                <div class="row-copy">
+                  <strong>{{ department.name }}</strong>
+                  <span class="badge position-status" [class.is-active]="department.active">
+                    {{ department.active ? 'Activo' : 'Inactivo' }}
+                  </span>
                 </div>
-            }
-        </div>
-    </div>
+                @if (department.id_department) {
+                  <div class="branch-actions">
+                    <button
+                      type="button"
+                      class="button option"
+                      [class.reject]="department.active"
+                      (click)="changeStatus(department.id_department!, department.active)"
+                    >
+                      {{ department.active ? 'Dar de baja' : 'Reactivar' }}
+                    </button>
+                  </div>
+                }
+              </div>
+            </li>
+          } @empty {
+            <li class="empty">No encontramos departamentos para mostrar.</li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="panel">
+      <header>
+        <h2>Nuevo departamento</h2>
+      </header>
+      <form [formGroup]="createDto" (ngSubmit)="createDepartment()">
+        <fieldset class="branch-fields">
+          <label>
+            Nombre del departamento
+            <input type="text" formControlName="name" maxlength="100" placeholder="Ej. Recursos Humanos" />
+          </label>
+          <div class="branch-actions form-actions">
+            <button type="submit" class="button primary" [disabled]="createDto.invalid">
+              Crear departamento +
+            </button>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+  </div>
 </div>
-
-<br>
-
-<form [formGroup]="createDto" (ngSubmit)="createDepartment()">
-    <label for="name">
-        Nombre de la departamento:
-        <input type="text" formControlName="name">
-    </label>
-    <button type="submit">Crear departamento</button>
-</form>
-
-</section>

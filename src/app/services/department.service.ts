@@ -34,9 +34,11 @@ export class DepartmentService {
       .set('page', filters.page ?? 0)
       .set('size', filters.size ?? 0);
 
-    if (filters.active) params.set('active', filters.active)
-    if (filters.id_department) params.set('id_department', filters.id_department)
-    if (filters.name) params.set('name', filters.name)
+    if (filters.active !== undefined) params = params.set('active', filters.active);
+    if (filters.id_department !== undefined) {
+      params = params.set('id_department', filters.id_department);
+    }
+    if (filters.name) params = params.set('name', filters.name);
 
     return params;
   }
