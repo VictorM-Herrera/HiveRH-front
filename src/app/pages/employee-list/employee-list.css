@@ -1,36 +1,33 @@
-.employee-container{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 16px;
-    background-color: black;
-    width: 400px;
-    box-sizing: border-box;
+.employee-row {
+  min-height: 56px;
+  text-decoration: none;
 }
-.employee-container header {
-    display: flex;
-    justify-content: center;
+
+.employee-row:hover,
+.employee-row:focus-visible {
+  background: #fff2d2;
 }
-.employee-list{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+
+.employee-row .assignment {
+  flex: 1.2;
 }
-.employee-card{
-    display: flex;
-    gap: 1rem;
-   background-color: brown;
-   color: white; 
+
+.badge[data-status='ACTIVE'] {
+  background: var(--hive-sage);
+  color: var(--hive-green);
 }
-.employee-nav{
-    background-color: transparent;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
+
+.profile-arrow {
+  width: 14px;
+  flex: none;
 }
-.employee-nav button{
-    width: 50px;
-    height: 40px;
+
+.retry {
+  align-self: flex-start;
+}
+
+@media (max-width: 540px) {
+  .employee-row .assignment {
+    display: none;
+  }
 }

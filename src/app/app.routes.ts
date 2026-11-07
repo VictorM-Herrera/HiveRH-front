@@ -29,6 +29,13 @@ export const routes: Routes = [
     title: 'Mis licencias',
   },
   {
+    path: 'team-vacations',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () =>
+      import('./pages/team-vacations/team-vacations').then((m) => m.TeamVacations),
+    title: 'Vacaciones del equipo',
+  },
+  {
     path: 'team-licenses',
     canActivate: [authGuard, staffGuard],
     loadComponent: () => import('./pages/team-licenses/team-licenses').then((m) => m.TeamLicenses),
@@ -48,8 +55,24 @@ export const routes: Routes = [
   },
   {
     path: 'employee-list',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () => import('./pages/employee-list/employee-list').then((m) => m.EmployeeList),
+    title: 'Lista de empleados',
+  },
+  {
+    path: 'branches',
     canActivate: [authGuard],
-    loadComponent: () => import('./pages/employee-list/employee-list').then(m => m.EmployeeList)
+    loadComponent: () => import('./pages/admin-branches/admin-branches').then(m => m.AdminBranches)
+  },
+  {
+    path: 'departments',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/admin-department/admin-department').then(m => m.AdminDepartment)
+  },
+  {
+    path: 'positions',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/admin-positions/admin-positions').then(m => m.AdminPositions)
   },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

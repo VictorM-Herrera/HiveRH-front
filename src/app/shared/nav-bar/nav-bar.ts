@@ -38,17 +38,17 @@ export class NavBar {
     { id: 'profile', label: 'Mi Perfil', icon: 'profile-white', route: '/profile' },
   ];
   readonly navigationItemsStaff: readonly NavigationItem[] = [
-    { id: 'people', label: 'Empleados', icon: 'people', route:'employee-list'},
-    { id: 'calendar', label: 'Vacaciones', icon: 'calendar' },
+    { id: 'people', label: 'Empleados', icon: 'people', route: '/employee-list' },
+    { id: 'calendar', label: 'Vacaciones', icon: 'calendar', route: '/team-vacations' },
     { id: 'file', label: 'Licencias', icon: 'file', route: '/team-licenses' },
     // { id: 'clock', label: 'Horarios', icon: 'clock' },
     
 
   ];
   readonly navigationItemsAdmin: readonly NavigationItem[] = [
-    { id: 'building', label: 'Sucursales', icon: 'building' },
-    { id: 'grid', label: 'Departamentos', icon: 'grid' },
-    { id: 'briefcase', label: 'Puestos', icon: 'briefcase' }
+    { id: 'building', label: 'Sucursales', icon: 'building', route: 'branches'},
+    { id: 'grid', label: 'Departamentos', icon: 'grid', route: 'departments' },
+    { id: 'briefcase', label: 'Puestos', icon: 'briefcase', route: 'positions' }
   ];
 
 

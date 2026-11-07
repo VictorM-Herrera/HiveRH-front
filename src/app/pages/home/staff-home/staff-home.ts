@@ -40,6 +40,7 @@ export class StaffHome {
       label: 'Vacaciones',
       description: this.pendingDescription(this.pendingVacations()),
       icon: 'icons/navigation/calendar.svg',
+      route: '/team-vacations',
     },
     {
       id: 'licenses',
@@ -53,6 +54,7 @@ export class StaffHome {
       label: 'Empleados',
       description: 'Gestionar el equipo',
       icon: 'icons/navigation/people.svg',
+      route: '/employee-list',
     },
   ]);
 

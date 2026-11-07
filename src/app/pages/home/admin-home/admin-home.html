@@ -1,32 +1,29 @@
 <section class="role-placeholder">
 
-  <!-- mensaje de bienvenida -->
   <header class="welcome">
-    <p class="sub-text">ORGANIZACION</p>
+    <p class="sub-text">ORGANIZACIÓN</p>
     <h1>Hola, {{auth.session()?.identifier}}.</h1>
   </header>
 
-  <!-- Info de la empresa -->
   <article class="summary-grid-admin">
     <div class="summary-card">
       <span class="summary-label">Sucursales</span>
-      <h2>{{branches().length}} sedes</h2>
-      <p class="summary-detail">Tu organizaciónm conectada</p>
+      <h2>{{brancCount()}} sedes</h2>
+      <p class="summary-detail">Tu organización conectada</p>
     </div>
     <div class="summary-card">
       <span class="summary-label">Departamentos</span>
-      <h2>{{departments().length}} equipos</h2>
+      <h2>{{departmentCount()}} equipos</h2>
       <p class="summary-detail">Areas de trabajo activas</p>
     </div>
     <div class="summary-card">
       <span class="summary-label">Puestos</span>
-      <h2>{{positions().length}} puestos</h2>
+      <h2>{{positionCount()}} puestos</h2>
       <p class="summary-detail">Funciones definidas</p>
     </div>
   </article>
 
 
-  <!-- carrusel -->
   <article class="hive-section">
     <header class="section-heading">
       <h2>Estructura de la organizacion.</h2>
@@ -35,7 +32,6 @@
   </article>
 
 
-  <!-- narvar de abajo -->
   <article class="footer-container">
     <h2>Gestion de equipo</h2>
     <div class="footer-btns">
@@ -50,7 +46,7 @@
         </span>
       </button>
 
-      <button class="summary-card">
+      <button class="summary-card" (click)="navigate('/team-vacations')">
         <div class="hive-icon-bg">
           <img class="hive-icon" src="icons/icon-calendar.svg" alt=""/>
         </div>

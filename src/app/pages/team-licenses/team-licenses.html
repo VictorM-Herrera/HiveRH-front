@@ -5,56 +5,65 @@
   </header>
 
   <form class="panel filters" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
-    <fieldset [disabled]="isSaving()">
-      <label>
-        DNI del empleado
-        <input
-          formControlName="dniEmployee"
-          type="search"
-          inputmode="numeric"
-          placeholder="Ej. 40111222"
-        />
-      </label>
-      <label>
-        Estado
-        <select formControlName="status">
-          <option value="">Todas</option>
-          <option value="PENDING">Pendientes</option>
-          <option value="APPROVED">Aprobadas</option>
-          <option value="REJECTED">Rechazadas</option>
-          <option value="CANCELLED">Canceladas</option>
-        </select>
-      </label>
-      <label>
-        Desde
-        <input formControlName="startDate" type="date" />
-      </label>
-      <label>
-        Hasta
-        <input formControlName="endDate" type="date" />
-      </label>
-      <label>
-        Tipo de pago
-        <select formControlName="payment">
-          <option value="">Todos</option>
-          <option value="paid">Pagas</option>
-          <option value="unpaid">No pagas</option>
-        </select>
-      </label>
-      <label>
-        Orden
-        <select formControlName="sort">
-          <option value="requestDate,desc">Más recientes</option>
-          <option value="requestDate,asc">Más antiguas</option>
-          <option value="startDate,asc">Inicio más temprano</option>
-          <option value="startDate,desc">Inicio más tardío</option>
-        </select>
-      </label>
+    <fieldset class="filter-groups" [disabled]="isSaving()">
+      <div class="filter-grid">
+        <label>
+          DNI del empleado
+          <input
+            formControlName="dniEmployee"
+            type="search"
+            inputmode="numeric"
+            placeholder="Ej. 40111222"
+          />
+        </label>
+        <label>
+          Estado
+          <select formControlName="status">
+            <option value="">Todas</option>
+            <option value="PENDING">Pendientes</option>
+            <option value="APPROVED">Aprobadas</option>
+            <option value="REJECTED">Rechazadas</option>
+            <option value="CANCELLED">Canceladas</option>
+          </select>
+        </label>
+        <label>
+          Desde
+          <input formControlName="startDate" type="date" />
+        </label>
+        <label>
+          Hasta
+          <input formControlName="endDate" type="date" />
+        </label>
+      </div>
+
+      <details class="more-filters">
+        <summary>Más filtros</summary>
+        <div class="filter-grid">
+          <label>
+            Tipo de pago
+            <select formControlName="payment">
+              <option value="">Todos</option>
+              <option value="paid">Pagas</option>
+              <option value="unpaid">No pagas</option>
+            </select>
+          </label>
+          <label>
+            Orden
+            <select formControlName="sort">
+              <option value="requestDate,desc">Más recientes</option>
+              <option value="requestDate,asc">Más antiguas</option>
+              <option value="startDate,asc">Inicio más temprano</option>
+              <option value="startDate,desc">Inicio más tardío</option>
+            </select>
+          </label>
+        </div>
+      </details>
+
       <div class="filter-actions">
+        <button type="button" class="button" (click)="resetFilters()">Restablecer</button>
         <button type="submit" class="button primary" [disabled]="filterForm.invalid">
           Filtrar
         </button>
-        <button type="button" class="button" (click)="resetFilters()">Restablecer</button>
       </div>
     </fieldset>
     @if (filterForm.hasError('dateOrder')) {
@@ -137,7 +146,12 @@
       }
     </section>
 
-    <section class="panel detail" aria-label="Solicitud seleccionada">
+    <section
+      #detailPanel
+      class="panel detail"
+      aria-label="Solicitud seleccionada"
+      [style.min-height.px]="detailMinHeight()"
+    >
       <p class="eyebrow">Solicitud seleccionada</p>
       @if (selectedLicense(); as license) {
         @let employee = employeeByDni().get(license.dniEmployee);

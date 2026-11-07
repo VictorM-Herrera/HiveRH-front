@@ -1,0 +1,35 @@
+<section style="display: flex; flex-direction: column; align-items: center;">
+<h1>POSICIONES</h1>
+<br>
+
+<div style="display: flex; flex-direction: column; gap: 20px; border: 2px solid black; width: 70%;">
+    <strong>Total de posiciones = {{position().length}}</strong>
+    <div>
+        <h2>Posiciones</h2>
+        <br>
+        <div style="display: flex; flex-direction: column; width: 600px;">
+            @for(p of position(); track p.id_position){
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <strong>{{p.name}}  </strong>
+                        <small>{{p.active}}  </small>
+                        <small>{{p.id_position}}</small>
+                    </div>
+                    <button (click)="patchPosition(p.id_position, p.active)">baja</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<br>
+
+<form [formGroup]="form" (ngSubmit)="createPosition()">
+    <label for="name">
+        Nombre de la posicion:
+        <input type="text" formControlName="createForm">
+    </label>
+    <button type="submit">Crear posicion</button>
+</form>
+
+</section>

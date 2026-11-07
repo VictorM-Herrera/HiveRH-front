@@ -1,121 +1,101 @@
-import { Component, inject, signal } from '@angular/core';
-import { EmployeeService } from '../../services/employee.service';
-import { Employee } from '../../models/employee/employee.model';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { BehaviorSubject, catchError, of, startWith, switchMap } from 'rxjs';
 import { EmployeeFilter } from '../../models/employee/employee-filter.model';
-import { validate } from '@angular/forms/signals';
+import { EmployeeAssignment, EmployeeStatus } from '../../models/employee/employee.model';
+import { BranchService } from '../../services/branch.service';
+import { DepartmentService } from '../../services/department.service';
+import { EmployeeService } from '../../services/employee.service';
+import { PositionService } from '../../services/position.service';
+
+const firstPage = { page: 0, size: 10 };
 
 @Component({
   selector: 'app-employee-list',
-  imports: [ɵInternalFormsSharedModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './employee-list.html',
-  styleUrls: [
-    './employee-list.css', 
-    '../home/employee-home/employee-home.css',
-    '../home/admin-home/admin-home.css',]
+  styleUrls: ['../team-licenses/team-licenses.css', './employee-list.css'],
 })
 export class EmployeeList {
-  private readonly employeeService = inject(EmployeeService)
-  private readonly _employees = signal<Employee[]>([])
-  readonly employees = this._employees.asReadonly();
-  employeeCount = signal<number>(0);
+  private readonly employeeService = inject(EmployeeService);
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly query = new BehaviorSubject<EmployeeFilter>(firstPage);
 
-  filterForm = new FormGroup({
-    filter: new FormControl('', {
-      validators: Validators.required,
-      nonNullable: true
-    })
-  })
-
-  private filtroDefault: EmployeeFilter = {
-    page: 0,
-    size: 7,
-  }
-
-
-  constructor(){
-    if(this._employees.length === 0) {
-      this.employeeService.getEmployees(this.filtroDefault).subscribe({
-        next: data => {
-          console.log(data);
-          
-          this._employees.set(data.element)
-        },
-        error: err => console.error("Error al cargar paginacion de empleados", err)
-      })
-    }
-    this.employeeService.getCountEMployees().subscribe({
-      next: data => this.employeeCount.set(data.totalElements)
-    })
-  }
-
-  filtrar(){
-    const data = this.filterForm.getRawValue().filter;
-    const filtro: EmployeeFilter = {
-      dni: data
-    }
-    this.employeeService.getEmployees(filtro).subscribe({
-      next: data => this._employees.set(data.element),
-      error: ea => console.log(ea)
-      
-    })
-  }
-  nextPage(): void {
-  this.filtroDefault.page = (this.filtroDefault.page ?? 0) + 1;
-
-  this.employeeService.getEmployees(this.filtroDefault).subscribe({
-    next: data => {
-      const employees = data.element ?? [];
-
-      if (employees.length === 0) {
-        this.filtroDefault.page = Math.max(0, (this.filtroDefault.page ?? 0) - 1);
-        return;
-      }
-
-      this._employees.set(employees);
+  readonly isActiveAssignment = (assignment: EmployeeAssignment): boolean => assignment.active;
+  readonly filterForm = this.fb.group(
+    {
+      fullName: '',
+      dni: '',
+      status: this.fb.control<EmployeeStatus | ''>(''),
+      id_branch: this.fb.control<number | null>(null),
+      department: '',
+      position: '',
+      hire_date: '',
+      termination_date: '',
+      min_salary: this.fb.control<number | null>(null),
+      max_salary: this.fb.control<number | null>(null),
     },
-    error: err => console.error('Error al cargar empleados', err)
-  });
-}
-  previousPage(){
-  this.filtroDefault.page = (this.filtroDefault.page ?? 0) - 1;
-
-  this.employeeService.getEmployees(this.filtroDefault).subscribe({
-    next: data => {
-      const employees = data.element ?? [];
-
-      if (employees.length === 0) {
-        this.filtroDefault.page = Math.max(0, (this.filtroDefault.page ?? 0) + 1);
-        return;
-      }
-
-      this._employees.set(employees);
+    {
+      validators: (form) => {
+        const { min_salary, max_salary } = form.getRawValue();
+        return min_salary != null && max_salary != null && min_salary > max_salary
+          ? { salaryRange: true }
+          : null;
+      },
     },
-    error: err => console.error('Error al cargar empleados', err)
-  });
+  );
+
+  readonly branches = toSignal(
+    inject(BranchService)
+      .getBranches()
+      .pipe(catchError(() => of(null))),
+  );
+  readonly departments = toSignal(
+    inject(DepartmentService)
+      .getDepartments()
+      .pipe(catchError(() => of(null))),
+  );
+  readonly positions = toSignal(
+    inject(PositionService)
+      .getPositions()
+      .pipe(catchError(() => of(null))),
+  );
+
+  readonly listResult = toSignal(
+    this.query.pipe(
+      switchMap((filters) =>
+        this.employeeService.getEmployees(filters).pipe(
+          catchError(() => of('error' as const)),
+          startWith(null),
+        ),
+      ),
+    ),
+    { initialValue: null },
+  );
+
+  applyFilters(): void {
+    if (this.filterForm.invalid) return;
+    const filters = this.filterForm.getRawValue();
+    this.query.next({
+      ...filters,
+      ...firstPage,
+      fullName: filters.fullName.trim(),
+      dni: filters.dni.trim(),
+      status: filters.status || undefined,
+      id_branch: filters.id_branch ?? undefined,
+      min_salary: filters.min_salary ?? undefined,
+      max_salary: filters.max_salary ?? undefined,
+    });
   }
 
- lastPage(): void {
-  const total = this.employeeCount() ?? 0;
-  const size = this.filtroDefault.size ?? 7;
-
-  const lastPage = Math.max(0, Math.ceil(total / size) - 1);
-  this.filtroDefault.page = lastPage;
-
-  this.employeeService.getEmployees(this.filtroDefault).subscribe({
-    next: data => this._employees.set(data.element ?? []),
-    error: err => console.error('Error al cargar empleados', err)
-  });
-}
-  beginPege(){
-    this.filtroDefault.page = 0;
-    this.employeeService.getEmployees(this.filtroDefault).subscribe({
-        next: data => this._employees.set(data.element)
-    })
+  resetFilters(): void {
+    this.filterForm.reset();
+    this.applyFilters();
   }
 
-
-
-
-
+  loadPage(page = this.query.value.page ?? 0): void {
+    this.query.next({ ...this.query.value, page });
+  }
 }

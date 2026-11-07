@@ -35,6 +35,12 @@
   color: inherit;
   cursor: pointer;
 }
+
+.footer-btns button:hover,
+.footer-btns button:focus-visible {
+  border-color: var(--hive-honey-hover);
+}
+
 .footer-btns button span {
   min-width: 0;
 }
