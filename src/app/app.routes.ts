@@ -1,9 +1,16 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
-import { adminGuard, authGuard, staffGuard } from './guards/auth.guard';
+import { adminGuard, authGuard, guestGuard, staffGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: Login, title: 'Login' },
+  { path: '', component: Login, canActivate: [guestGuard], title: 'Login' },
+  {
+    path: 'change-password',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/change-password/change-password').then((m) => m.ChangePassword),
+    title: 'Cambiar contraseña',
+  },
   {
     path: 'home',
     canActivate: [authGuard],

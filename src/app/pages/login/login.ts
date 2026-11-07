@@ -43,7 +43,7 @@ export class Login {
       .subscribe({
         next: (response) => {
           if (response.mustChangePassword) {
-            this._router.navigate(['/change-password']);
+            this._router.navigate(['/change-password'], { replaceUrl: true });
             return;
           }
 
