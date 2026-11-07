@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -9,12 +9,14 @@ import { BranchService } from '../../services/branch.service';
 import { DepartmentService } from '../../services/department.service';
 import { EmployeeService } from '../../services/employee.service';
 import { PositionService } from '../../services/position.service';
+import { ToastComponent } from '../../components/toast/toast';
+import { EmployeeCreate } from '../employee-create/employee-create';
 
 const firstPage = { page: 0, size: 10 };
 
 @Component({
   selector: 'app-employee-list',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, EmployeeCreate, ToastComponent],
   templateUrl: './employee-list.html',
   styleUrls: ['../team-licenses/team-licenses.css', './employee-list.css'],
 })
@@ -23,6 +25,8 @@ export class EmployeeList {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly query = new BehaviorSubject<EmployeeFilter>(firstPage);
 
+  readonly isCreating = signal(false);
+  readonly employeeCreated = signal(false);
   readonly isActiveAssignment = (assignment: EmployeeAssignment): boolean => assignment.active;
   readonly filterForm = this.fb.group(
     {
@@ -97,5 +101,11 @@ export class EmployeeList {
 
   loadPage(page = this.query.value.page ?? 0): void {
     this.query.next({ ...this.query.value, page });
+  }
+
+  onEmployeeCreated(): void {
+    this.isCreating.set(false);
+    this.employeeCreated.set(true);
+    this.loadPage(0);
   }
 }

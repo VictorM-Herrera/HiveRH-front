@@ -1,59 +1,132 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize, Observable } from 'rxjs';
+import { ToastComponent, ToastType } from '../../components/toast/toast';
+import { Position, PositionFilters } from '../../models/position.model';
 import { PositionService } from '../../services/position.service';
-import { Position } from '../../models/position';
 
 @Component({
   selector: 'app-admin-positions',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ToastComponent],
   templateUrl: './admin-positions.html',
-  styleUrl: './admin-positions.css',
+  styleUrls: [
+    '../team-licenses/team-licenses.css',
+    '../admin-branches/admin-branches.css',
+    './admin-positions.css',
+  ],
 })
 export class AdminPositions {
   private readonly positionService = inject(PositionService);
-  private readonly _positions = signal<Position[]>([]);
-  readonly position = this._positions.asReadonly();
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private appliedFilters: PositionFilters = {};
 
+  readonly filterForm = this.fb.group({
+    name: ['', Validators.maxLength(100)],
+    active: this.fb.control<boolean | null>(null),
+  });
+  readonly form = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(100)]],
+  });
 
-  form = new FormGroup({
-    createForm: new FormControl('', {
-      validators: [
-        Validators.required,
-        Validators.minLength(4)
-      ],
-      nonNullable: true
-    })
-  })
-  
+  readonly listResult = signal<Position[] | 'error' | null>(null);
+  readonly editingPosition = signal<Position | null>(null);
+  readonly pendingStatusChange = signal<Position | null>(null);
+  readonly isSaving = signal(false);
+  readonly toast = signal<{ type: ToastType; title: string; message: string } | null>(null);
+
   constructor() {
-    if (this._positions.length === 0) {
-      this.positionService.getPositions().subscribe({
-        next: data => this._positions.set(data),
-        error: err => console.log("Error al cargar posiciones", err)
-      })
-    }
+    this.loadPositions();
   }
 
-  createPosition() {
-    this.positionService.postPosition(this.form.getRawValue().createForm)
+  applyFilters(): void {
+    if (this.isSaving() || this.filterForm.invalid) return;
+    const { name, active } = this.filterForm.getRawValue();
+    this.pendingStatusChange.set(null);
+    this.appliedFilters = {
+      name: name.trim() || undefined,
+      active: active ?? undefined,
+    };
+    this.loadPositions();
+  }
+
+  resetFilters(): void {
+    this.filterForm.reset();
+    this.applyFilters();
+  }
+
+  loadPositions(): void {
+    this.listResult.set(null);
+    this.positionService
+      .getPositions(this.appliedFilters)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: data => this._positions.update(positions => [...positions, data]),
-        error: err => console.log("error al crear position", err)
-      })
+        next: (positions) => this.listResult.set(positions),
+        error: () => this.listResult.set('error'),
+      });
   }
 
-  patchPosition(id:number, status:boolean){    
-    this.positionService.patchPosition(id, !status).subscribe({
-      next: newPosition => {
-        this._positions.update(lista => 
-          lista.map(position =>
-            position.id_position === newPosition.id_position
-            ? newPosition
-            : position
-          )
-        )
-      },
-      error: err => console.log("error en el patch", err)
-    })
+  editPosition(position: Position): void {
+    this.pendingStatusChange.set(null);
+    this.editingPosition.set(position);
+    this.form.reset({ name: position.name });
   }
+
+  resetForm(): void {
+    this.editingPosition.set(null);
+    this.form.reset();
+  }
+
+  savePosition(): void {
+    if (this.isSaving() || this.listResult() === null) return;
+    const name = this.form.controls.name.value.trim();
+    this.form.controls.name.setValue(name);
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
+
+    const editing = this.editingPosition();
+    const request = editing
+      ? this.positionService.updatePosition(editing.id_position, name)
+      : this.positionService.postPosition(name);
+    this.saveChange(request, editing ? 'Puesto actualizado.' : 'Puesto creado.', () =>
+      this.resetForm(),
+    );
+  }
+
+  changeStatus(): void {
+    const position = this.pendingStatusChange();
+    if (!position || this.isSaving()) return;
+
+    const active = !position.active;
+    this.saveChange(
+      this.positionService.patchPosition(position.id_position, active),
+      active ? 'Puesto reactivado.' : 'Puesto dado de baja.',
+    );
+  }
+
+  private saveChange(request: Observable<Position>, message: string, onSuccess?: () => void): void {
+    this.isSaving.set(true);
+    request
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isSaving.set(false)),
+      )
+      .subscribe({
+        next: () => {
+          onSuccess?.();
+          this.pendingStatusChange.set(null);
+          this.loadPositions();
+          this.toast.set({ type: 'success', title: 'Puestos', message });
+        },
+        error: () =>
+          this.toast.set({
+            type: 'error',
+            title: 'No se pudo completar la acción',
+            message: 'No pudimos guardar el cambio. Intentá nuevamente.',
+          }),
+      });
+  }
+
+  
 }

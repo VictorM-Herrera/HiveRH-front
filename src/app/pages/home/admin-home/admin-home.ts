@@ -1,10 +1,10 @@
   import { Component, inject, signal } from '@angular/core';
   import { AuthService } from '../../../services/auth.service';
   import { BranchService } from '../../../services/branch.service';
-  import { Branch } from '../../../models/branch';
-  import { Department } from '../../../models/department';
+  import { Branch } from '../../../models/branch.model';
+  import { Department } from '../../../models/department.model';
   import { DepartmentService } from '../../../services/department.service';
-  import { Position } from '../../../models/position';
+  import { Position } from '../../../models/position.model';
   import { PositionService } from '../../../services/position.service';
   import { HiveCarousel, HiveCarouselItem } from '../../../shared/hive-carousel/hive-carousel';
   import { Router } from '@angular/router';
@@ -74,11 +74,7 @@
       
       if(this._departments().length === 0){ this.departmentService.getDepartments().subscribe({
         next: deps => {
-          console.log(deps)
-          
-          this._departments.set(deps)
-          console.log(this._departments().length)
-          
+          this._departments.set(deps)          
           this.departmentCount.set(deps.length)
         },
         error: err => console.log("Error al cargar departamentos", err)

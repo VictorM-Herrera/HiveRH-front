@@ -52,8 +52,8 @@ export class App {
   readonly showNavigation = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map((event) => event.urlAfterRedirects !== '/'),
-      startWith(this.router.url !== '/'),
+      map((event) => !['/', '/change-password'].includes(event.urlAfterRedirects.split('?')[0])),
+      startWith(!['/', '/change-password'].includes(this.router.url.split('?')[0])),
     ),
     { requireSync: true },
   );
@@ -77,6 +77,8 @@ export class App {
             }
             return EMPTY;
           }
+
+          if (this._authService.session()?.mustChangePassword) return EMPTY;
 
           const account$ = this._accountService.loadAccount().pipe(
             catchError((err) => {

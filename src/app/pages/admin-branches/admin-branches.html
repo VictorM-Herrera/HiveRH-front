@@ -1,41 +1,175 @@
-<h1>Sucursales - Total ({{branchCount()}})</h1>
+<div class="team-page">
+  <header>
+    <p class="eyebrow">Organización</p>
+    <h1>Sucursales</h1>
+  </header>
 
-<br>
-
-<div style="display: flex; flex-direction: column; width: 600px;">
-
-    @for(branch of branches(); track branch.id_branch){
-    <div style="display: flex; gap: 10px;">
-        <small>{{branch.id_branch}}</small>
-        <strong>{{branch.name}}</strong>
-        <small>{{branch.address}}</small>
-        <small>{{branch.city}}</small>
-        <small>{{branch.active}}</small>
-        
-        @if(branch.id_branch){
-        <button (click)="deleteBranch(branch.id_branch)">delete</button>
+  <div class="workspace branch-workspace">
+    <section class="panel">
+      <header style="display: flex; justify-content: space-between;">
+        <h2>Tu red de sucursales</h2>
+        @if (!isLoading() && !loadError()) {
+          <p class="muted branch-description">
+            {{ branches().length }}
+            {{ branches().length === 1 ? 'activa' : 'activas' }}
+          </p>
         }
-    </div>
-    }
-</div>
+      </header>
 
-<br>
+      @if (isLoading()) {
+        <p class="empty" role="status">Cargando sucursales…</p>
+      } @else if (loadError()) {
+        <p class="empty">No pudimos cargar las sucursales.</p>
+        <button type="button" class="button" (click)="loadBranches()">Reintentar</button>
+      } @else {
+        <input
+          class="branch-search"
+          type="search"
+          [formControl]="search"
+          aria-label="Buscar por nombre o ciudad"
+          placeholder="Buscar por nombre o ciudad"
+        />
+        <ul class="request-list">
+          @for (branch of visibleBranches(); track branch.id_branch) {
+            <li class="branch-row">
+              <div class="branch-item">
+                <span class="branch-icon">
+                  <img src="icons/navigation/building.svg" alt="" draggable="false" />
+                </span>
+                <div class="row-copy">
+                  <strong>{{ branch.name }}</strong>
+                  <small>{{ branch.city }} · {{ branch.address }}</small>
+                </div>
+                <div class="branch-actions">
+                  <button
+                    type="button"
+                    class="button edit-branch option"
+                    [disabled]="isSaving()"
+                    (click)="editBranch(branch); branchName.focus()"
 
-<aside>
-    <form [formGroup]="formBranch" (ngSubmit)="createBranch()"
-        style="display: flex; flex-direction: column; gap: 10px;">
-        <label for="">
-            nombre:
-            <input type="text" formControlName="name">
-        </label>
-        <label for="">
-            ciudad:
-            <input type="text" formControlName="city">
-        </label>
-        <label for="">
-            direccion:
-            <input type="text" formControlName="address">
-        </label>
-        <button type="submit" style="width: 60px;">Crear</button>
-    </form>
-</aside>
+                  >
+                    <img src="icons/icon-pencil.svg" alt="" draggable="false" /> Editar
+                  </button>
+                  <button
+                    type="button"
+                    class="button reject option"
+                    [disabled]="isSaving()"
+                    (click)="pendingDeactivation.set(branch)"
+
+                  >
+                    Dar de baja
+                  </button>
+                </div>
+              </div>
+              @if (pendingDeactivation()?.id_branch === branch.id_branch) {
+                <div
+                  class="branch-confirmation"
+                  role="group"
+                  [attr.aria-label]="'Confirmar baja de ' + branch.name"
+                >
+                  <p>
+                    ¿Querés dar de baja a <strong>{{ branch.name }}</strong
+                    >?
+                  </p>
+                  <div class="branch-actions">
+                    <button
+                      type="button"
+                      class="button"
+                      [disabled]="isSaving()"
+                      (click)="pendingDeactivation.set(null)"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="button reject"
+                      [disabled]="isSaving()"
+                      (click)="deactivateBranch()"
+                    >
+                      Confirmar baja
+                    </button>
+                  </div>
+                </div>
+              }
+            </li>
+          } @empty {
+            <li class="empty">
+              {{
+                branches().length
+                  ? 'No encontramos sucursales con esa búsqueda.'
+                  : 'Todavía no hay sucursales activas.'
+              }}
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="panel">
+      <header>
+        <h2>{{ editingBranch() ? 'Editar sucursal' : 'Nueva sucursal' }}</h2>
+        <p class="muted branch-description">
+          {{ editingBranch()?.name }}
+        </p>
+      </header>
+      <form [formGroup]="formBranch" (ngSubmit)="saveBranch()">
+        <fieldset class="branch-fields" [disabled]="isSaving() || isLoading() || loadError()">
+          <label>
+            Nombre de la sucursal
+            <input
+              #branchName
+              type="text"
+              formControlName="name"
+              maxlength="100"
+              placeholder="Ej. Sede Constitución"
+            />
+            @if (formBranch.controls.name.touched && formBranch.controls.name.invalid) {
+              <span class="field-error">Ingresá un nombre de hasta 100 caracteres.</span>
+            }
+          </label>
+          <label>
+            Ciudad
+            <input
+              type="text"
+              formControlName="city"
+              maxlength="100"
+              placeholder="Ej. Mar del Plata"
+            />
+            @if (formBranch.controls.city.touched && formBranch.controls.city.invalid) {
+              <span class="field-error">Ingresá una ciudad válida de hasta 100 caracteres.</span>
+            }
+          </label>
+          <label>
+            Dirección
+            <input
+              type="text"
+              formControlName="address"
+              maxlength="100"
+              placeholder="Ej. Av. Constitución 4500"
+            />
+            @if (formBranch.controls.address.touched && formBranch.controls.address.invalid) {
+              <span class="field-error">Ingresá una dirección de entre 3 y 100 caracteres.</span>
+            }
+          </label>
+          <div class="branch-actions form-actions">
+            @if (editingBranch()) {
+              <button type="button" class="button" (click)="resetForm()">Cancelar edición</button>
+            }
+            <button type="submit" class="button primary" [disabled]="formBranch.invalid">
+              {{ editingBranch() ? 'Guardar cambios' : 'Crear sucursal +' }}
+            </button>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+  </div>
+
+
+@if (toast(); as message) {
+  <app-toast
+    [type]="message.type"
+    [title]="message.title"
+    [message]="message.message"
+    (dismissed)="toast.set(null)"
+  />
+}

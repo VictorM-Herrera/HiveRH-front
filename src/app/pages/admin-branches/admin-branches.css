@@ -1,0 +1,116 @@
+.branch-description {
+  margin-top: 5px;
+}
+
+.branch-workspace {
+  align-items: start;
+  margin-top: 24px;
+}
+
+.branch-workspace .request-list {
+  max-height: min(26rem, 55dvh);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.branch-search,
+.branch-fields {
+  margin-top: 18px;
+}
+
+.branch-fields {
+  display: grid;
+  gap: 14px;
+}
+
+.option {
+  opacity: 0;
+  transition: opacity .1s ease-in-out;
+}
+.branch-item:hover .option {
+  opacity: 1;
+}
+
+.branch-fields input {
+  background: var(--hive-surface);
+}
+
+.branch-fields .field-error {
+  display: block;
+}
+
+.branch-item,
+.branch-actions,
+.branch-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.branch-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hive-line);
+}
+
+.branch-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border-radius: 10px;
+  background: #fff2d2;
+}
+
+.branch-icon img,
+.branch-note img {
+  width: 17px;
+  filter: brightness(0);
+}
+
+.branch-actions {
+  flex-wrap: wrap;
+}
+
+.edit-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.edit-branch img {
+  width: 12px;
+}
+
+.branch-confirmation {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--hive-canvas);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.form-actions .primary {
+  flex: 1;
+}
+
+.branch-note {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fff2d2;
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .branch-item {
+    flex-wrap: wrap;
+  }
+
+  .branch-item .branch-actions {
+    flex-basis: 100%;
+  }
+}

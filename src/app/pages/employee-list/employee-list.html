@@ -163,3 +163,25 @@
     }
   </section>
 </div>
+
+<button
+  type="button"
+  class="create-employee-button"
+  title="Dar de alta empleado"
+  aria-label="Dar de alta empleado"
+  (click)="employeeCreated.set(false); isCreating.set(true)"
+>
+  <img src="icons/icon-plus.svg" alt="" draggable="false" />
+</button>
+
+@if (isCreating()) {
+  <app-employee-create (saved)="onEmployeeCreated()" (closed)="isCreating.set(false)" />
+}
+@if (employeeCreated()) {
+  <app-toast
+    type="success"
+    title="Empleados"
+    message="Empleado dado de alta correctamente."
+    (dismissed)="employeeCreated.set(false)"
+  />
+}
