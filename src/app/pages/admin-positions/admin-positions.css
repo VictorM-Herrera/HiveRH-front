@@ -1,0 +1,31 @@
+.position-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.position-status {
+  justify-self: start;
+}
+
+.position-status.is-active {
+  background: var(--hive-sage);
+  color: var(--hive-green);
+}
+
+.branch-item:focus-within .option {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .branch-item .option {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .position-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
