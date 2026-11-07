@@ -7,6 +7,12 @@
   margin-top: 24px;
 }
 
+.branch-workspace .request-list {
+  max-height: min(26rem, 55dvh);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
 .branch-search,
 .branch-fields {
   margin-top: 18px;

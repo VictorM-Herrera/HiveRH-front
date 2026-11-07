@@ -1,35 +1,172 @@
-<section style="display: flex; flex-direction: column; align-items: center;">
-<h1>POSICIONES</h1>
-<br>
+<div class="team-page">
+  <header>
+    <p class="eyebrow">Organización</p>
+    <h1>Puestos</h1>
+  </header>
 
-<div style="display: flex; flex-direction: column; gap: 20px; border: 2px solid black; width: 70%;">
-    <strong>Total de posiciones = {{position().length}}</strong>
-    <div>
-        <h2>Posiciones</h2>
-        <br>
-        <div style="display: flex; flex-direction: column; width: 600px;">
-            @for(p of position(); track p.id_position){
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <strong>{{p.name}}  </strong>
-                        <small>{{p.active}}  </small>
-                        <small>{{p.id_position}}</small>
-                    </div>
-                    <button (click)="patchPosition(p.id_position, p.active)">baja</button>
+  <div class="workspace branch-workspace">
+    <section class="panel">
+      @let result = listResult();
+      <header class="list-header">
+        <h2>Tu listado de puestos</h2>
+        @if (result && result !== 'error') {
+          <p class="muted">
+            {{ result.length }} {{ result.length === 1 ? 'puesto' : 'puestos' }}
+          </p>
+        }
+      </header>
+
+      <form class="branch-search" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+        <fieldset [disabled]="isSaving()">
+          <div class="position-filters">
+            <label>
+              Nombre
+              <input
+                type="search"
+                formControlName="name"
+                maxlength="100"
+                placeholder="Ej. Analista"
+              />
+            </label>
+            <label>
+              Estado
+              <select formControlName="active">
+                <option [ngValue]="null">Todos</option>
+                <option [ngValue]="true">Activos</option>
+                <option [ngValue]="false">Inactivos</option>
+              </select>
+            </label>
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="button" (click)="resetFilters()">Restablecer</button>
+            <button type="submit" class="button primary" [disabled]="filterForm.invalid">
+              Filtrar
+            </button>
+          </div>
+        </fieldset>
+      </form>
+
+      @if (result === null) {
+        <p class="empty" role="status">Cargando puestos…</p>
+      } @else if (result === 'error') {
+        <p class="empty">No pudimos cargar los puestos.</p>
+        <button type="button" class="button" (click)="loadPositions()">Reintentar</button>
+      } @else {
+        <ul class="request-list">
+          @for (position of result; track position.id_position) {
+            <li class="branch-row">
+              <div class="branch-item">
+                <span class="branch-icon">
+                  <img src="icons/navigation/briefcase.svg" alt="" draggable="false" />
+                </span>
+                <div class="row-copy">
+                  <strong>{{ position.name }}</strong>
+                  <span class="badge position-status" [class.is-active]="position.active">
+                    {{ position.active ? 'Activo' : 'Inactivo' }}
+                  </span>
                 </div>
+                <div class="branch-actions">
+                  <button
+                    type="button"
+                    class="button edit-branch option"
+                    [disabled]="isSaving()"
+                    (click)="editPosition(position); positionName.focus()"
+                  >
+                    <img src="icons/icon-pencil.svg" alt="" draggable="false" /> Editar
+                  </button>
+                  <button
+                    type="button"
+                    class="button option"
+                    [class.reject]="position.active"
+                    [disabled]="isSaving()"
+                    (click)="pendingStatusChange.set(position)"
+                  >
+                    {{ position.active ? 'Dar de baja' : 'Reactivar' }}
+                  </button>
+                </div>
+              </div>
+              @if (pendingStatusChange()?.id_position === position.id_position) {
+                <div
+                  class="branch-confirmation"
+                  role="group"
+                  aria-label="Confirmar cambio de estado"
+                >
+                  <p>
+                    ¿Querés {{ position.active ? 'dar de baja' : 'reactivar' }} el puesto
+                    <strong>{{ position.name }}</strong
+                    >?
+                  </p>
+                  <div class="branch-actions">
+                    <button
+                      type="button"
+                      class="button"
+                      [disabled]="isSaving()"
+                      (click)="pendingStatusChange.set(null)"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="button"
+                      [class.reject]="position.active"
+                      [class.primary]="!position.active"
+                      [disabled]="isSaving()"
+                      (click)="changeStatus()"
+                    >
+                      {{ position.active ? 'Confirmar baja' : 'Confirmar reactivación' }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </li>
+          } @empty {
+            <li class="empty">No encontramos puestos para mostrar.</li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="panel">
+      <header>
+        <h2>{{ editingPosition() ? 'Editar puesto' : 'Nuevo puesto' }}</h2>
+        @if (editingPosition(); as position) {
+          <p class="muted branch-description">{{ position.name }}</p>
+        }
+      </header>
+      <form [formGroup]="form" (ngSubmit)="savePosition()">
+        <fieldset class="branch-fields" [disabled]="isSaving() || listResult() === null">
+          <label>
+            Nombre del puesto
+            <input
+              #positionName
+              type="text"
+              formControlName="name"
+              maxlength="100"
+              placeholder="Ej. Desarrollador Frontend"
+            />
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <span class="field-error">Ingresá un nombre de hasta 100 caracteres.</span>
             }
-        </div>
-    </div>
+          </label>
+          <div class="branch-actions form-actions">
+            @if (editingPosition()) {
+              <button type="button" class="button" (click)="resetForm()">Cancelar edición</button>
+            }
+            <button type="submit" class="button primary">
+              {{ editingPosition() ? 'Guardar cambios' : 'Crear puesto +' }}
+            </button>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+  </div>
 </div>
 
-<br>
-
-<form [formGroup]="form" (ngSubmit)="createPosition()">
-    <label for="name">
-        Nombre de la posicion:
-        <input type="text" formControlName="createForm">
-    </label>
-    <button type="submit">Crear posicion</button>
-</form>
-
-</section>
+@if (toast(); as message) {
+  <app-toast
+    [type]="message.type"
+    [title]="message.title"
+    [message]="message.message"
+    (dismissed)="toast.set(null)"
+  />
+}
