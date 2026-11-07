@@ -26,6 +26,39 @@
   align-self: flex-start;
 }
 
+.create-employee-button {
+  position: fixed;
+  right: clamp(20px, 3vw, 36px);
+  bottom: clamp(20px, 3vw, 36px);
+  z-index: 100;
+  display: grid;
+  width: 60px;
+  height: 60px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--hive-honey);
+  box-shadow: 0 6px 18px rgb(37 45 39 / 20%);
+  cursor: pointer;
+}
+
+.create-employee-button:hover {
+  background: var(--hive-honey-hover);
+}
+
+.create-employee-button:focus-visible {
+  outline: 2px solid var(--hive-ink);
+  outline-offset: 4px;
+}
+
+.create-employee-button img {
+  display: block;
+  width: 28px;
+  height: 28px;
+  user-select: none;
+}
+
 @media (max-width: 540px) {
   .employee-row .assignment {
     display: none;
