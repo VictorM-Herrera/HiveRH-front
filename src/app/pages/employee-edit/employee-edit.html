@@ -54,6 +54,22 @@
             >Fecha de baja (opcional)<input type="date" formControlName="termination_date"
           /></label>
         </div>
+        <h3 class="employment-heading">Acceso al sistema</h3>
+        <div class="form-grid">
+          <label>
+            Rol
+            <select [formControl]="role">
+              <option value="" disabled>
+                {{ isLoadingRole() ? 'Cargando rol…' : 'No pudimos consultar el rol' }}
+              </option>
+              <option value="EMPLOYEE">Empleado</option>
+              <option value="STAFF">Staff</option>
+              @if (canAssignAdmin() || currentRole() === 'ADMIN') {
+                <option value="ADMIN">Administrador</option>
+              }
+            </select>
+          </label>
+        </div>
         @if (form.touched && form.invalid) {
           <p class="field-error">
             Completá los campos obligatorios e ingresá un salario mayor a cero.
@@ -64,7 +80,11 @@
         <button type="button" class="cancel-button" [disabled]="isSaving()" (click)="close()">
           Cancelar
         </button>
-        <button type="submit" class="save-button" [disabled]="form.invalid || isSaving()">
+        <button
+          type="submit"
+          class="save-button"
+          [disabled]="form.invalid || isSaving() || isLoadingRole()"
+        >
           Guardar cambios<img src="icons/icon-arrow-right.svg" alt="" draggable="false" />
         </button>
       </footer>

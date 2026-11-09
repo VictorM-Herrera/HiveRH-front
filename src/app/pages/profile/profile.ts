@@ -8,7 +8,7 @@ import { ToastComponent, ToastType } from '../../components/toast/toast';
 import { Employee } from '../../models/employee/employee.model';
 import { AuthService } from '../../services/auth.service';
 import { EmployeeService } from '../../services/employee.service';
-import { EmployeeEdit } from '../employee-edit/employee-edit';
+import { EmployeeEdit, EmployeeEditResult } from '../employee-edit/employee-edit';
 
 @Component({
   selector: 'app-profile',
@@ -89,10 +89,36 @@ export class Profile {
     );
   }
 
-  onEmployeeSaved(employee: Employee): void {
+  onEmployeeSaved({ employee, roleUpdated, roleError }: EmployeeEditResult): void {
+    const ownRoleUpdated = roleUpdated && this.authService.session()?.identifier === employee.dni;
     this.employee.set(employee);
     this.isEditing.set(false);
-    this.showToast('success', 'Actualizamos los datos del empleado.');
+
+    if (ownRoleUpdated) {
+      this.authService
+        .logout()
+        .pipe(
+          catchError(() => of(void 0)),
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => {
+            this.router.navigate(['/'], {
+              replaceUrl: true,
+              state: { accountUpdateMessage: 'Actualizamos tu rol. Volvé a ingresar.' },
+            });
+          }),
+        )
+        .subscribe();
+      return;
+    }
+
+    if (roleError) {
+      this.showToast('error', `Guardamos los datos del empleado. El cambio de rol quedó pendiente. ${roleError}`);
+    } else {
+      this.showToast(
+        'success',
+        roleUpdated ? 'Actualizamos los datos y el rol del empleado.' : 'Actualizamos los datos del empleado.',
+      );
+    }
     const dni = this.route.snapshot.paramMap.get('dni');
     if (dni && dni !== employee.dni) {
       this.router.navigate(['/profile', employee.dni], { replaceUrl: true });
