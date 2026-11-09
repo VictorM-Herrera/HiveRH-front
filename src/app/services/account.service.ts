@@ -21,6 +21,16 @@ export class AccountService {
       .pipe(tap((account) => this._account.set(account)));
   }
 
+  getAccountByDni(dni: string): Observable<Account> {
+    return this.http.get<Account>(`${this.baseUrl}/api/accounts/${encodeURIComponent(dni)}`);
+  }
+
+  updateRole(dni: string, rol: Account['rol']): Observable<Account> {
+    return this.http.patch<Account>(`${this.baseUrl}/api/accounts/${encodeURIComponent(dni)}/rol`, {
+      rol,
+    });
+  }
+
   updateEmail(email: string): Observable<Account> {
     return this.http
       .patch<Account>(`${this.baseUrl}/api/accounts/me/email`, { email })
